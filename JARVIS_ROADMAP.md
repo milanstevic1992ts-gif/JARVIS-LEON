@@ -75,7 +75,9 @@ Cervello locale predefinito: Ollama + `qwen3.5:4b`.
 - [x] Cache monitor hardware/servizi per ridurre carico.
 - [x] UI responsive integrata nell'app realmente servita dal Debian.
 - [ ] Benchmark e tuning grafico sul server reale.
-- [ ] Pulsanti operativi Eco/Boost/Restart con policy.
+- [x] Pulsanti operativi ECO/NORMAL/BOOST, 4B/9B, benchmark, unload e restart con policy.
+- [x] Restart Ollama opzionale con sudoers a privilegio minimo.
+- [ ] Test visuale e tuning sul Debian reale.
 
 ## Fase 4 — Debian
 
