@@ -67,6 +67,18 @@ JARVIS dispone ora di tre superfici che usano lo stesso runtime e la stessa sess
 
 La mini-chat riceve streaming delle risposte, mostra lo stato di elaborazione, conserva un piccolo storico visuale e si riallinea automaticamente quando cambia la sessione attiva. Non avvia un secondo modello Ollama.
 
+### Controllo del Brain dalla chat
+
+Il toolkit nativo `jarvis.brain` consente alla stessa chat di:
+
+- leggere stato modello/RAM/VRAM/Ollama;
+- eseguire benchmark locale;
+- cambiare ECO/NORMAL/BOOST;
+- cambiare Qwen 4B/9B;
+- scaricare il modello dalla memoria.
+
+Le modifiche a modalità/modello/unload restano GIALLA e richiedono approvazione one-shot. I restart restano controlli UI/sistema per evitare che un tool interrompa a metà una risposta.
+
 ## Provenienza e licenza
 
 Questa repository deriva da **Leon 2.0**. Il codice originale resta soggetto alla licenza MIT e agli avvisi presenti in `LICENSE.md`. La provenienza della copia iniziale è registrata in `LEON_UPSTREAM.md`.
