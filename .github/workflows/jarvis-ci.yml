@@ -39,19 +39,23 @@ jobs:
             server/src/core/llm-manager/llm-provider.ts \
             server/src/core/llm-manager/llm-routing.ts \
             server/src/core/config-states/model-state.ts \
+            server/src/core/jarvis-policy/jarvis-policy-manager.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
             scripts/setup/setup.js \
             server/src/core/context-manager/context-files/leon-context-file.ts \
             server/src/core/context-manager/context-files/leon-runtime-context-file.ts \
             server/src/built-in-command/commands/voice-command/voice-command.ts \
+            server/src/built-in-command/commands/jarvis-command/jarvis-command.ts \
+            server/src/built-in-command/index.ts \
             server/src/core/voice/voice-resource-state.ts \
             server/src/constants.ts \
             tools/ge360/core/src/nodejs/ge360-tool.ts \
+            tools/ge360/core/src/nodejs/ge360-resource-resolver.ts \
             tools/ge360/core/src/nodejs/index.ts
 
-      - name: Test Ollama local routing
-        run: pnpm exec vitest run --config vitest.config.ts test/jarvis/unit/ollama-routing.spec.ts
+      - name: Test JARVIS core
+        run: pnpm exec vitest run --config vitest.config.ts test/jarvis/unit
 
       - name: Validate JARVIS voice Python
         run: |
@@ -89,6 +93,13 @@ jobs:
           const settings = JSON.parse(fs.readFileSync('tools/ge360/core/settings.sample.json', 'utf8'))
           if (toolkit.name !== 'GE360' || !toolkit.tools.includes('core')) throw new Error('GE360 toolkit')
           if (tool.toolkit_id !== 'ge360' || tool.tool_id !== 'core') throw new Error('GE360 tool')
-          if (settings.allow_write_actions !== false) throw new Error('write gate must default false')
+          if (settings.writes_enabled !== true) throw new Error('GE360 master write gate must be enabled for approval flow')
+          if (settings.yellow_auto_approve !== false) throw new Error('yellow actions must require approval by default')
+          for (const fn of ['discoverResources', 'listResource', 'getResource', 'request']) {
+            if (!tool.functions[fn]) throw new Error('missing GE360 function: ' + fn)
+          }
+          if (!tool.functions.request.parameters.properties.options.properties.method.enum.includes('DELETE')) {
+            throw new Error('DELETE must be routed through RED policy rather than silently absent')
+          }
           console.log('JARVIS + GE360 manifests OK')
           NODE
