@@ -42,6 +42,21 @@ pnpm run jarvis:doctor
 
 Il 9B resta opzionale per macchine più potenti.
 
+## JARVIS Brain Dashboard
+
+L'interfaccia di produzione include ora un pulsante **Brain**. Il pannello viene caricato solo quando aperto e mostra in tempo reale:
+
+- modello e provider attivi;
+- Ollama e modello residente;
+- RAM, CPU, GPU e VRAM;
+- context e modalità low-resource;
+- stato GE360;
+- ultima attività agente con piano, tool e metriche;
+- approvazioni di sicurezza pendenti;
+- audit VERDE/GIALLA/ROSSA.
+
+Il runtime espone i dati tramite `GET /api/v1/brain-status`. Le sonde hardware e servizi usano cache breve per non creare carico inutile sul Debian.
+
 ## Provenienza e licenza
 
 Questa repository deriva da **Leon 2.0**. Il codice originale resta soggetto alla licenza MIT e agli avvisi presenti in `LICENSE.md`. La provenienza della copia iniziale è registrata in `LEON_UPSTREAM.md`.
