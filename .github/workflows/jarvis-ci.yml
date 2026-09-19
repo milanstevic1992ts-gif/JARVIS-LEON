@@ -40,6 +40,7 @@ jobs:
             server/src/core/llm-manager/llm-routing.ts \
             server/src/core/llm-manager/model-context-windows.ts \
             server/src/core/llm-manager/llm-duties/react-llm-duty/constants.ts \
+            server/src/core/llm-manager/persona.ts \
             server/src/core/config-states/model-state.ts \
             server/src/core/jarvis-policy/jarvis-policy-manager.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
@@ -105,6 +106,7 @@ jobs:
           if (c.runtime.agent_max_iterations !== 64) throw new Error('migrated agent iterations')
           if (c.runtime.pulse_enabled !== false) throw new Error('migrated pulse')
           if (c.runtime.private_diary_enabled !== false) throw new Error('migrated diary')
+          if (c.mood.mode !== 'default') throw new Error('migrated mood')
           NODE
           rm -rf "$TMP_HOME"
 
@@ -120,6 +122,7 @@ jobs:
           if (c.runtime.agent_max_iterations !== 64) throw new Error('agent iterations')
           if (c.runtime.pulse_enabled !== false) throw new Error('pulse must default off')
           if (c.runtime.private_diary_enabled !== false) throw new Error('private diary must default off')
+          if (c.mood.mode !== 'default') throw new Error('auto weather mood must default off')
           const toolkit = JSON.parse(fs.readFileSync('tools/ge360/toolkit.json', 'utf8'))
           const tool = JSON.parse(fs.readFileSync('tools/ge360/core/tool.json', 'utf8'))
           const settings = JSON.parse(fs.readFileSync('tools/ge360/core/settings.sample.json', 'utf8'))
