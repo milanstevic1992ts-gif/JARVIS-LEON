@@ -263,18 +263,21 @@ async function getServiceStatus(): Promise<{
 function getCpuSnapshot(): Record<string, unknown> {
   const cpus = os.cpus()
   const load = os.loadavg()
+  const load1m = load[0] ?? 0
+  const load5m = load[1] ?? 0
+  const load15m = load[2] ?? 0
   const coreCount = Math.max(cpus.length, 1)
   const estimatedLoadPercent = Math.min(
-    Math.max((load[0] / coreCount) * 100, 0),
+    Math.max((load1m / coreCount) * 100, 0),
     100
   )
 
   return {
     model: cpus[0]?.model || 'unknown',
     cores: coreCount,
-    load_1m: Number(load[0].toFixed(2)),
-    load_5m: Number(load[1].toFixed(2)),
-    load_15m: Number(load[2].toFixed(2)),
+    load_1m: Number(load1m.toFixed(2)),
+    load_5m: Number(load5m.toFixed(2)),
+    load_15m: Number(load15m.toFixed(2)),
     estimated_load_percent: Number(estimatedLoadPercent.toFixed(1))
   }
 }
@@ -366,10 +369,12 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
       LogHelper.success('JARVIS brain status fetched.')
 
       const configuredModel = modelState.getAgentModelName()
+      const agentMaxIterations =
+        profileConfig.runtime.agent_max_iterations ?? 64
       const performanceMode =
         configuredModel === 'qwen3.5:9b'
           ? 'boost'
-          : profileConfig.runtime.agent_max_iterations <= 32
+          : agentMaxIterations <= 32
             ? 'eco'
             : 'normal'
 
@@ -393,8 +398,7 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
           pulse_enabled: profileConfig.runtime.pulse_enabled,
           private_diary_enabled:
             profileConfig.runtime.private_diary_enabled,
-          agent_max_iterations:
-            profileConfig.runtime.agent_max_iterations || null,
+          agent_max_iterations: agentMaxIterations,
           performance_mode: performanceMode
         },
         llm: {
