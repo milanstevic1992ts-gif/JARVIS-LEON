@@ -502,6 +502,12 @@ export default class LLMProvider {
   }
 
   private getDefaultTimeoutForProvider(providerName: LLMProviders): number {
+    // Ollama can need a longer first-token warm-up when the model is loaded
+    // from disk or partially offloaded, so keep the remote-style timeout.
+    if (providerName === LLMProviders.Ollama) {
+      return 120_000
+    }
+
     return LOCAL_SERVER_PROVIDERS.has(providerName) ? 32_000 : 120_000
   }
 
