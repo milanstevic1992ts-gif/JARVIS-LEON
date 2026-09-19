@@ -117,6 +117,13 @@ jobs:
           grep -Fq 'server/dist/pre-check.js' deploy/debian/run-jarvis-service.sh
           grep -Fq 'exec "${NODE_BIN}" server/dist/index.js' deploy/debian/run-jarvis-service.sh
 
+      - name: Validate Italian default language
+        run: |
+          grep -Fq "language: it-IT" config.sample.yml
+          grep -Fq "config.language = 'it-IT'" scripts/jarvis/apply-low-resource-profile.js
+          grep -Fq "Rispondi sempre in italiano" server/src/core/llm-manager/persona.ts
+          grep -Fq "The default owner-facing language is Italian" server/src/core/llm-manager/llm-duties/react-llm-duty/agent-loop.ts
+
       - name: Build production server TypeScript
         run: pnpm run build:server
 
