@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/toolkit-schemas/toolkit.json",
+  "name": "GE360",
+  "description": "Local-first tools for inspecting and operating the GE360 backend and connected modules.",
+  "progressive_guidance": "Prefer GE360 tools over generic shell commands when a GE360 API can provide the same information. Read-only operations are enabled by default. Write operations stay blocked unless explicitly enabled in tool settings.",
+  "icon_name": "dashboard-3-line",
+  "context_files": [
+    "LEON.md",
+    "HOST_SYSTEM.md",
+    "SYSTEM_RESOURCES.md"
+  ],
+  "tools": [
+    "core"
+  ]
+}
