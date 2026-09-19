@@ -1,21 +1,21 @@
 {
-  "name": "leon",
+  "name": "jarvis-leon",
   "version": "1.0.0-beta.10+dev",
-  "description": "Server, skills and web app of the Leon personal assistant",
+  "description": "GE360 JARVIS personal AI assistant, derived from Leon 2.0",
   "author": {
     "name": "Louis Grenard",
     "email": "louis@getleon.ai",
     "url": "https://x.com/grenlouis"
   },
   "license": "MIT",
-  "homepage": "https://getleon.ai",
+  "homepage": "https://github.com/milanstevic1992ts-gif/JARVIS-LEON",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leon-ai/leon.git"
+    "url": "git+https://github.com/milanstevic1992ts-gif/JARVIS-LEON.git"
   },
   "bugs": {
-    "url": "https://github.com/leon-ai/leon/issues"
+    "url": "https://github.com/milanstevic1992ts-gif/JARVIS-LEON/issues"
   },
   "engines": {
     "node": ">=24.0.0"
