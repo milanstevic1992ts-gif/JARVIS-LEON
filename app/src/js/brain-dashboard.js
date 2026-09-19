@@ -116,6 +116,11 @@ export default class BrainDashboard {
     this.statusLabel = null
     this.statusDot = null
     this.lastUpdated = null
+    this.lastData = null
+    this.pendingControl = null
+    this.controlBusy = false
+    this.controlNotice = ''
+    this.benchmarkHistory = []
     this.toggleButton = document.querySelector('#brain-toggle')
   }
 
@@ -320,6 +325,7 @@ export default class BrainDashboard {
       return
     }
 
+    this.lastData = data
     this.content.replaceChildren()
 
     if (this.lastUpdated) {
@@ -451,6 +457,9 @@ export default class BrainDashboard {
 
     servicesGrid.append(servicesCard.card, safetyCard.card)
 
+    const controlsCard = createCard('Controllo cervello', 'settings-3')
+    this.renderControls(controlsCard.card, data)
+
     const activityCard = createCard('Attività agente', 'pulse')
     this.renderActivity(activityCard.card, data.activity)
 
@@ -460,9 +469,350 @@ export default class BrainDashboard {
     this.content.append(
       overviewGrid,
       servicesGrid,
+      controlsCard.card,
       activityCard.card,
       auditCard.card
     )
+  }
+
+  createControlButton(label, iconName, onClick, options = {}) {
+    const button = createElement(
+      'button',
+      'brain-control-button' +
+        (options.tone ? ' brain-control-button--' + options.tone : '') +
+        (options.active ? ' brain-control-button--active' : '')
+    )
+    button.type = 'button'
+    button.disabled = this.controlBusy || Boolean(options.disabled)
+    button.innerHTML =
+      '<i class="ri-' + iconName + '-line" aria-hidden="true"></i>' +
+      '<span>' + label + '</span>'
+    button.addEventListener('click', onClick)
+
+    return button
+  }
+
+  renderControls(card, data) {
+    const currentMode = data.runtime?.performance_mode || 'normal'
+    const installedModels = Array.isArray(data.ollama?.installed_models)
+      ? data.ollama.installed_models
+      : []
+    const configuredModel = data.llm?.model || ''
+    const restartOllamaAvailable = data.controls?.restart_ollama === true
+
+    const sectionLabel = (text) =>
+      createElement('div', 'brain-control-section-label', text)
+
+    const modeRow = createElement('div', 'brain-control-row')
+    for (const mode of ['eco', 'normal', 'boost']) {
+      const labels = {
+        eco: 'ECO',
+        normal: 'NORMAL',
+        boost: 'BOOST'
+      }
+      const icons = {
+        eco: 'leaf',
+        normal: 'speed',
+        boost: 'rocket'
+      }
+      modeRow.append(
+        this.createControlButton(
+          labels[mode],
+          icons[mode],
+          () => void this.requestControl({
+            action: 'set-mode',
+            mode
+          }),
+          {
+            active: currentMode === mode,
+            tone: mode === 'boost' ? 'boost' : mode
+          }
+        )
+      )
+    }
+
+    const modelRow = createElement('div', 'brain-control-row')
+    for (const model of ['qwen3.5:4b', 'qwen3.5:9b']) {
+      const installed = installedModels.some(
+        (name) => name === model || name.startsWith(model + '-')
+      )
+      modelRow.append(
+        this.createControlButton(
+          model.endsWith(':4b') ? 'Qwen 4B' : 'Qwen 9B',
+          'cpu',
+          () => void this.requestControl({
+            action: 'set-model',
+            model
+          }),
+          {
+            active: configuredModel === model,
+            disabled: !installed,
+            tone: model.endsWith(':9b') ? 'boost' : 'normal'
+          }
+        )
+      )
+    }
+
+    const actionRow = createElement('div', 'brain-control-row brain-control-row--actions')
+    actionRow.append(
+      this.createControlButton(
+        'Benchmark',
+        'line-chart',
+        () => void this.requestControl({ action: 'benchmark' }),
+        { tone: 'green' }
+      ),
+      this.createControlButton(
+        'Unload',
+        'eject',
+        () => void this.requestControl({ action: 'unload-model' }),
+        { tone: 'yellow' }
+      ),
+      this.createControlButton(
+        'Restart JARVIS',
+        'restart',
+        () => void this.requestControl({ action: 'restart-jarvis' }),
+        { tone: 'red' }
+      ),
+      this.createControlButton(
+        restartOllamaAvailable ? 'Restart Ollama' : 'Ollama protetto',
+        restartOllamaAvailable ? 'refresh' : 'lock',
+        () => void this.requestControl({ action: 'restart-ollama' }),
+        {
+          tone: 'red',
+          disabled: !restartOllamaAvailable
+        }
+      )
+    )
+
+    card.append(
+      sectionLabel('Modalità prestazioni'),
+      modeRow,
+      sectionLabel('Modello'),
+      modelRow,
+      sectionLabel('Azioni'),
+      actionRow
+    )
+
+    if (this.pendingControl) {
+      const approval = createElement('div', 'brain-control-approval')
+      const label = createElement(
+        'div',
+        'brain-control-approval__label',
+        'Conferma ' + String(this.pendingControl.approval?.risk || '').toUpperCase()
+      )
+      const description = createElement(
+        'p',
+        'brain-control-approval__description',
+        this.pendingControl.message ||
+          'Questa azione richiede una conferma esplicita.'
+      )
+      const buttons = createElement('div', 'brain-control-approval__actions')
+      buttons.append(
+        this.createControlButton(
+          'Conferma',
+          'check',
+          () => void this.confirmPendingControl(),
+          { tone: 'red' }
+        ),
+        this.createControlButton(
+          'Annulla',
+          'close',
+          () => void this.denyPendingControl(),
+          { tone: 'normal' }
+        )
+      )
+      approval.append(label, description, buttons)
+      card.append(approval)
+    }
+
+    if (this.controlNotice) {
+      card.append(
+        createElement('p', 'brain-control-notice', this.controlNotice)
+      )
+    }
+
+    if (this.benchmarkHistory.length > 0) {
+      const chart = createElement('div', 'brain-benchmark')
+      const title = createElement(
+        'div',
+        'brain-control-section-label',
+        'Benchmark token/s'
+      )
+      const bars = createElement('div', 'brain-benchmark__bars')
+      const maxValue = Math.max(
+        ...this.benchmarkHistory.map((item) => item.tokensPerSecond),
+        1
+      )
+
+      for (const item of this.benchmarkHistory.slice(-8)) {
+        const column = createElement('div', 'brain-benchmark__column')
+        const value = createElement(
+          'span',
+          'brain-benchmark__value',
+          formatNumber(item.tokensPerSecond)
+        )
+        const barWrap = createElement('div', 'brain-benchmark__track')
+        const bar = createElement('div', 'brain-benchmark__bar')
+        bar.style.height =
+          Math.max((item.tokensPerSecond / maxValue) * 100, 6) + '%'
+        barWrap.append(bar)
+        const label = createElement(
+          'span',
+          'brain-benchmark__label',
+          item.model.includes('9b') ? '9B' : '4B'
+        )
+        column.append(value, barWrap, label)
+        bars.append(column)
+      }
+
+      chart.append(title, bars)
+      card.append(chart)
+    }
+  }
+
+  async requestControl(payload) {
+    if (this.controlBusy) {
+      return
+    }
+
+    this.controlBusy = true
+    this.controlNotice = 'Esecuzione...'
+    this.pendingControl = null
+    if (this.lastData) {
+      this.render(this.lastData)
+    }
+
+    try {
+      const response = await axios.post(
+        this.serverUrl + '/api/v1/brain-control',
+        payload
+      )
+      const data = response.data
+
+      if (data.status === 'owner_action_required') {
+        this.pendingControl = {
+          payload,
+          approval: data.approval,
+          message: data.message
+        }
+        this.controlNotice =
+          'Serve la tua conferma per continuare.'
+        return
+      }
+
+      if (data.success !== true) {
+        this.controlNotice =
+          data.message || 'Operazione non completata.'
+        return
+      }
+
+      if (data.benchmark) {
+        this.benchmarkHistory.push({
+          model: data.benchmark.model || 'unknown',
+          tokensPerSecond:
+            Number(data.benchmark.output_tokens_per_second) || 0
+        })
+        this.benchmarkHistory = this.benchmarkHistory.slice(-8)
+        this.controlNotice =
+          'Benchmark: ' +
+          formatNumber(data.benchmark.output_tokens_per_second) +
+          ' token/s · load ' +
+          formatNumber(data.benchmark.load_seconds) +
+          's'
+      } else {
+        this.controlNotice = data.message || 'Operazione completata.'
+      }
+
+      window.setTimeout(() => {
+        if (this.isOpen) {
+          void this.refresh()
+        }
+      }, 700)
+    } catch (error) {
+      this.controlNotice =
+        error.response?.data?.message ||
+        error.message ||
+        'Controllo JARVIS non disponibile.'
+    } finally {
+      this.controlBusy = false
+      if (this.lastData) {
+        this.render(this.lastData)
+      }
+    }
+  }
+
+  async confirmPendingControl() {
+    if (!this.pendingControl || this.controlBusy) {
+      return
+    }
+
+    const pending = this.pendingControl
+    this.controlBusy = true
+    this.controlNotice = 'Conferma in corso...'
+    if (this.lastData) {
+      this.render(this.lastData)
+    }
+
+    try {
+      const approvalResponse = await axios.post(
+        this.serverUrl + '/api/v1/brain-control',
+        {
+          action: 'approve',
+          approval_id: pending.approval.id
+        }
+      )
+
+      if (approvalResponse.data.success !== true) {
+        this.controlNotice =
+          approvalResponse.data.message || 'Conferma fallita.'
+        return
+      }
+
+      this.controlBusy = false
+      this.pendingControl = null
+      await this.requestControl(pending.payload)
+    } catch (error) {
+      this.controlNotice =
+        error.response?.data?.message ||
+        error.message ||
+        'Conferma non riuscita.'
+    } finally {
+      this.controlBusy = false
+      if (this.lastData) {
+        this.render(this.lastData)
+      }
+    }
+  }
+
+  async denyPendingControl() {
+    if (!this.pendingControl || this.controlBusy) {
+      return
+    }
+
+    const pending = this.pendingControl
+    this.controlBusy = true
+
+    try {
+      await axios.post(
+        this.serverUrl + '/api/v1/brain-control',
+        {
+          action: 'deny',
+          approval_id: pending.approval.id
+        }
+      )
+      this.pendingControl = null
+      this.controlNotice = 'Operazione annullata.'
+    } catch (error) {
+      this.controlNotice =
+        error.response?.data?.message ||
+        error.message ||
+        'Impossibile annullare la richiesta.'
+    } finally {
+      this.controlBusy = false
+      if (this.lastData) {
+        this.render(this.lastData)
+      }
+    }
   }
 
   renderActivity(card, activity) {
