@@ -433,6 +433,16 @@ export default class Persona {
   }
 
   async syncWeatherMoodAndContext(): Promise<void> {
+    const moodState = CONFIG_STATE.getMoodState()
+
+    if (!moodState.isAutomatic()) {
+      this.weatherSnapshot = null
+      this.setMood()
+      this.setContextInfo()
+      EVENT_EMITTER.emit('persona_new-mood-set')
+      return
+    }
+
     try {
       await this.refreshWeatherSnapshot()
     } catch (error) {
