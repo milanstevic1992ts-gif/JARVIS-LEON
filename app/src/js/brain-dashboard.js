@@ -104,9 +104,10 @@ function createKeyValue(label, value, tone = '') {
 }
 
 export default class BrainDashboard {
-  constructor({ serverUrl, socket }) {
+  constructor({ serverUrl, socket, quickChat }) {
     this.serverUrl = serverUrl
     this.socket = socket
+    this.quickChat = quickChat
     this.isOpen = false
     this.isThinking = false
     this.lastError = null
@@ -116,6 +117,7 @@ export default class BrainDashboard {
     this.statusLabel = null
     this.statusDot = null
     this.lastUpdated = null
+    this.chatDock = null
     this.lastData = null
     this.pendingControl = null
     this.controlBusy = false
@@ -219,8 +221,10 @@ export default class BrainDashboard {
       )
     )
 
-    this.panel.append(header, hero, this.content)
+    this.chatDock = createElement('section', 'brain-chat')
+    this.panel.append(header, hero, this.content, this.chatDock)
     document.body.append(this.panel)
+    this.quickChat?.mountInsideBrain(this.chatDock)
     this.renderLiveState()
   }
 
