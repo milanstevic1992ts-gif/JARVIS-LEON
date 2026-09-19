@@ -6,7 +6,7 @@ const TOOL_ID = 'core'
 const DEFAULT_TIMEOUT_MS = 10_000
 const MAX_RESPONSE_TEXT_CHARS = 100_000
 
-type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH'
+type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 interface RequestOptions {
   method?: HTTPMethod
