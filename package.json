@@ -73,7 +73,9 @@
     "train": "tsx scripts/train/run-train.js",
     "prepare-release": "tsx scripts/release/prepare-release.js",
     "check": "tsx scripts/check.js",
-    "kill": "tsx scripts/kill.js"
+    "kill": "tsx scripts/kill.js",
+    "jarvis:doctor": "bash deploy/debian/jarvis-doctor.sh",
+    "jarvis:prepare-ai": "bash deploy/debian/prepare-local-ai.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.52",
