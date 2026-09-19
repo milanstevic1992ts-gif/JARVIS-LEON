@@ -1,0 +1,76 @@
+{
+  "$schema": "../../../schemas/tool-schemas/tool.json",
+  "tool_id": "core",
+  "toolkit_id": "ge360",
+  "name": "GE360 Core",
+  "description": "Discover, inspect and call the local GE360 HTTP API with guarded write access and no arbitrary remote URL support.",
+  "progressive_guidance": "Start with discoverLocalService or diagnose when the GE360 address is unknown. Use getOpenAPI before guessing endpoint paths. GET requests are allowed by default. POST, PUT and PATCH require allow_write_actions=true in settings. DELETE is intentionally blocked in this phase.",
+  "icon_name": "server-line",
+  "author": {
+    "name": "GE360 JARVIS",
+    "url": "https://github.com/milanstevic1992ts-gif/JARVIS-LEON"
+  },
+  "functions": {
+    "discoverLocalService": {
+      "description": "Probe configured and common localhost addresses to find a GE360 HTTP service and identify its API surface.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "diagnose": {
+      "description": "Check GE360 connectivity, health endpoints and OpenAPI availability and return a compact diagnostic summary.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "getOpenAPI": {
+      "description": "Fetch the GE360 OpenAPI document and return API metadata plus a compact list of available paths and methods.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "request": {
+      "description": "Call a relative GE360 API path. Read methods are allowed by default; guarded write methods require an explicit setting.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative GE360 path beginning with /, for example /api/clienti."
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["GET", "POST", "PUT", "PATCH"]
+              },
+              "query": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": ["string", "number", "boolean"]
+                }
+              },
+              "body": {
+                "description": "Optional JSON request body."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    }
+  }
+}
