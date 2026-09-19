@@ -20,6 +20,12 @@ import { getActiveConversationSessionModelTarget } from '@/core/session-manager/
 
 const LOCAL_MODEL_PROVIDERS = new Set<LLMProviders>([
   LLMProviders.LlamaCPP,
+  LLMProviders.SGLang,
+  LLMProviders.Ollama
+])
+
+const LOCAL_MODEL_PATH_PROVIDERS = new Set<LLMProviders>([
+  LLMProviders.LlamaCPP,
   LLMProviders.SGLang
 ])
 
@@ -193,13 +199,15 @@ export class ModelState {
       throw new Error(`The provider "${provider}" requires a model value.`)
     }
 
-    if (path.isAbsolute(normalizedModel) && !this.isLocalProvider(provider)) {
+    const usesLocalModelPath = LOCAL_MODEL_PATH_PROVIDERS.has(provider)
+
+    if (path.isAbsolute(normalizedModel) && !usesLocalModelPath) {
       throw new Error(
-        `Absolute model paths are only supported for local providers such as "${LLMProviders.LlamaCPP}".`
+        `Absolute model paths are only supported for file-backed local providers such as "${LLMProviders.LlamaCPP}".`
       )
     }
 
-    if (this.isLocalProvider(provider) && path.isAbsolute(normalizedModel)) {
+    if (usesLocalModelPath && path.isAbsolute(normalizedModel)) {
       if (!FileHelper.isExistingPath(localModelCandidatePath)) {
         throw new Error(
           `The local model path "${normalizedModel}" was not found.`
@@ -210,7 +218,7 @@ export class ModelState {
     }
 
     if (
-      this.isLocalProvider(provider) &&
+      usesLocalModelPath &&
       !FileHelper.isExistingPath(localModelCandidatePath)
     ) {
       throw new Error(
