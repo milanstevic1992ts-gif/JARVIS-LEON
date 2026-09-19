@@ -17,17 +17,17 @@ llm:
   # Use null to leave the global LLM target unset.
   # Set to "<provider>/<model>" to use a provider/model pair.
   # Examples:
-  # JARVIS default local brain (recommended): ollama/qwen3.5:9b
-  # default: ollama/qwen3.5:9b
+  # JARVIS default local brain (recommended): ollama/qwen3.5:4b
+  # default: ollama/qwen3.5:4b
   # default: openai/gpt-5.6-sol
   # default: openrouter/z-ai/glm-5.2
   # default: llamacpp/Qwen3.8-27B-Uncensored-Aggressive-Q4_K_M.gguf
   # default: sglang/Qwen3.8-27B-Uncensored-Aggressive-Q4_K_M.gguf
   # default: /absolute/path/model.gguf
-  default: ollama/qwen3.5:9b
+  default: ollama/qwen3.5:4b
   # Optional per-mode overrides. Null values fall back to llm.default.
   workflow: null
-  agent: ollama/qwen3.5:9b
+  agent: ollama/qwen3.5:4b
   # Persisted per-model overrides.
   model_settings: {}
   providers:
@@ -105,11 +105,12 @@ mood:
 
 runtime:
   # Optional total agent iteration limit, including the finishing pass (default: 256).
-  agent_max_iterations: 256
-  # Enable Leon's autonomous pulse mechanism.
-  pulse_enabled: true
-  # Enable Leon's private diary/self-model mechanism.
-  private_diary_enabled: true
+  agent_max_iterations: 64
+  # Low-resource default: keep autonomous pulse off so it does not compete with interactive requests.
+  # Enable JARVIS autonomous pulse only after the server is stable.
+  pulse_enabled: false
+  # Low-resource default: disable private diary background work.
+  private_diary_enabled: false
   # Load toolkit function schemas only when needed.
   progressive_toolkit_loading: true
 
@@ -152,7 +153,7 @@ voice:
 
 time_zone: null
 after_speech_enabled: false
-telemetry_enabled: true
+telemetry_enabled: false
 
 client_interface:
   # Extra origins allowed to connect to Leon from browser-like clients.
