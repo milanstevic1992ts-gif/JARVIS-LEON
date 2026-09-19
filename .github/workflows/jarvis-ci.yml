@@ -37,6 +37,8 @@ jobs:
             server/src/schemas/core-schemas.ts \
             server/src/core/llm-manager/types.ts \
             server/src/core/llm-manager/llm-provider.ts \
+            server/src/core/llm-manager/llm-routing.ts \
+            server/src/core/config-states/model-state.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
             scripts/setup/setup.js \
@@ -45,6 +47,9 @@ jobs:
             server/src/built-in-command/commands/voice-command/voice-command.ts \
             tools/ge360/core/src/nodejs/ge360-tool.ts \
             tools/ge360/core/src/nodejs/index.ts
+
+      - name: Test Ollama local routing
+        run: pnpm exec vitest run --config vitest.config.ts test/jarvis/unit/ollama-routing.spec.ts
 
       - name: Validate Debian deployment scripts
         run: |
