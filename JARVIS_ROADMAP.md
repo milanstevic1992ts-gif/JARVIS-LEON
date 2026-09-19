@@ -46,11 +46,11 @@ Cervello locale predefinito: Ollama + `qwen3.5:9b`.
 
 ## Fase 4 — Debian
 
-- [ ] Installer guidato Debian.
-- [ ] Service `ge360-jarvis.service`.
-- [ ] Verifica automatica Ollama.
-- [ ] Download/pull Qwen.
-- [ ] Healthcheck.
+- [x] Installer guidato del servizio Debian.
+- [x] Service `ge360-jarvis.service`.
+- [x] Verifica automatica Ollama.
+- [x] Download/pull Qwen.
+- [x] Healthcheck.
 - [ ] Logrotate.
 - [ ] Upgrade sicuro dalla repository GitHub.
 
