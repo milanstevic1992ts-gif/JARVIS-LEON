@@ -91,6 +91,7 @@ export const configSchemaObject = strictObject({
     providers: strictObject({
       llamacpp: llmProviderWithBaseURL,
       sglang: llmProviderWithBaseURL,
+      ollama: llmProviderWithBaseURL,
       openrouter: llmProvider,
       zai: llmProvider,
       deepseek: llmProvider,
