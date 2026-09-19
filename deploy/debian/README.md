@@ -1,49 +1,82 @@
-# Deploy Debian
+# Deploy Debian · Low Resource
 
-Questi file preparano JARVIS per l'host Debian senza cambiare la struttura interna ereditata da Leon.
+Questa configurazione è pensata per il server GE360 con risorse limitate: un solo modello locale alla volta, contesto controllato, niente processi AI autonomi in background e servizio Node con memoria contenuta.
 
-## 1. Controllo prerequisiti
+## Profilo consigliato
 
-Dalla root della repository:
+- Modello: `qwen3.5:4b`
+- Context Ollama/JARVIS: 8192 token
+- Richieste Ollama parallele: 1
+- Modelli Ollama caricati: 1
+- Tool JARVIS paralleli: 2
+- Agent max iterations: 64
+- Pulse autonomo: off
+- Private diary: off
+- ASR/TTS/wake word: off finché non servono
+- KV cache Ollama: `q8_0`
+- Keep alive modello: 2 minuti
 
-```bash
-bash deploy/debian/jarvis-doctor.sh
-```
+Il modello 9B resta utilizzabile manualmente, ma non è più il default del server.
 
-JARVIS richiede Node.js 24+, pnpm e Ollama. Il modello locale predefinito è `qwen3.5:9b`.
-
-## 2. Preparazione AI locale
-
-Quando Ollama è già installato:
-
-```bash
-bash deploy/debian/prepare-local-ai.sh
-```
-
-Lo script scarica il modello solo se manca e fa un piccolo test locale.
-
-## 3. Dipendenze JARVIS
+## 1. Pull e dipendenze
 
 ```bash
+git pull
 pnpm install
-pnpm run check
+pnpm run build
 ```
 
-## 4. Servizio systemd
+Il servizio di produzione usa `server/dist`; il build va eseguito dopo gli aggiornamenti del codice.
+
+## 2. Migra il profilo esistente
+
+```bash
+pnpm run jarvis:low-resource
+```
+
+Il comando crea prima un backup timestampato del `config.yml` del profilo. Non modifica token/API key.
+
+## 3. Configura Ollama e scarica Qwen 4B
+
+```bash
+pnpm run jarvis:prepare-ai
+```
+
+Questo applica il drop-in systemd `ollama-low-resource.conf`, riavvia Ollama, scarica `qwen3.5:4b` se manca e fa un test.
+
+## 4. Installa/aggiorna il servizio JARVIS
 
 ```bash
 sudo bash deploy/debian/install-service.sh
-sudo systemctl start ge360-jarvis
-systemctl status ge360-jarvis
+sudo systemctl restart ge360-jarvis
 ```
 
-Log:
+## 5. Diagnostica
+
+```bash
+pnpm run jarvis:doctor
+```
+
+Controlla Node, pnpm, RAM, swap, NVIDIA/VRAM, Ollama, modello caricato, configurazione low-resource, servizio JARVIS e backend GE360.
+
+Per vedere se il modello è tutto su GPU:
+
+```bash
+ollama ps
+```
+
+`100% GPU` è l'obiettivo. Un fallback importante su CPU sarà molto più lento sul server.
+
+## Log
 
 ```bash
 journalctl -u ge360-jarvis -f
+journalctl -u ollama -f
 ```
 
-L'interfaccia predefinita resta locale sulla porta 5366. L'esposizione via Tailscale/reverse proxy va configurata separatamente, così il servizio non viene pubblicato accidentalmente su Internet.
+## Nota sulla swap
+
+Con RAM limitata è consigliabile avere almeno 2-4 GB di swap come rete di sicurezza contro picchi/OOM. La swap non sostituisce la RAM e non deve essere usata normalmente per l'inferenza.
 
 ## GE360 Tool Bus
 
@@ -53,6 +86,4 @@ Il tool `ge360.core` cerca il backend solo su localhost. Per una porta diversa:
 export GE360_BASE_URL=http://127.0.0.1:PORTA
 ```
 
-Oppure configurare il file profilo generato per `tools/ge360/core/settings.json`.
-
-Le scritture API restano disabilitate per default.
+Le policy VERDE/GIALLA/ROSSA restano attive indipendentemente dal profilo low-resource.
