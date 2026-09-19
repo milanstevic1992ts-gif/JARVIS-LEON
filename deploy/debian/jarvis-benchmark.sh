@@ -34,7 +34,7 @@ START="$(date +%s%N)"
 RESPONSE="$(curl -fsS --max-time 180 "${URL}" -d "${PAYLOAD}")"
 END="$(date +%s%N)"
 
-python3 - "${START}" "${END}" <<'PY' <<<"${RESPONSE}"
+printf '%s' "${RESPONSE}" | python3 -c '
 import json, sys
 data = json.load(sys.stdin)
 start = int(sys.argv[1])
@@ -59,8 +59,8 @@ print(f"Prompt tokens:    {prompt_count}")
 print(f"Prompt speed:     {prompt_tps:.1f} tok/s")
 print(f"Generated tokens: {eval_count}")
 print(f"Generation speed: {eval_tps:.1f} tok/s")
-print(f"Response:         {data.get('response','').strip()}")
-PY
+print(f"Response:         {data.get(chr(114)+chr(101)+chr(115)+chr(112)+chr(111)+chr(110)+chr(115)+chr(101), str()).strip()}")
+' "${START}" "${END}"
 
 echo
 echo "Ollama memory placement:"
