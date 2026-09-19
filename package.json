@@ -76,7 +76,8 @@
     "kill": "tsx scripts/kill.js",
     "jarvis:doctor": "bash deploy/debian/jarvis-doctor.sh",
     "jarvis:prepare-ai": "bash deploy/debian/prepare-local-ai.sh",
-    "jarvis:low-resource": "node scripts/jarvis/apply-low-resource-profile.js"
+    "jarvis:low-resource": "node scripts/jarvis/apply-low-resource-profile.js",
+    "jarvis:benchmark": "bash deploy/debian/jarvis-benchmark.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.52",
