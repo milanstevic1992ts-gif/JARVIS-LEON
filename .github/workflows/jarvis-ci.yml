@@ -90,6 +90,8 @@ jobs:
           bash -n deploy/debian/prepare-local-ai.sh
           bash -n deploy/debian/configure-ollama-low-resource.sh
           bash -n deploy/debian/jarvis-benchmark.sh
+          bash -n deploy/debian/enable-brain-service-control.sh
+          bash -n deploy/debian/disable-brain-service-control.sh
           grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
           grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
           grep -Fq 'Environment=PATH=__JARVIS_PATH__' deploy/debian/ge360-jarvis.service
