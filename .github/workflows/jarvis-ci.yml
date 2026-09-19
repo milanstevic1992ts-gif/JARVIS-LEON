@@ -46,6 +46,8 @@ jobs:
             server/src/core/http-server/http-server.ts \
             server/src/core/http-server/api/brain-status/get.ts \
             server/src/core/http-server/api/brain-status/index.ts \
+            server/src/core/http-server/api/brain-control/post.ts \
+            server/src/core/http-server/api/brain-control/index.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
             scripts/setup/setup.js \
@@ -103,7 +105,18 @@ jobs:
           LEON_HOME="$TMP_HOME" pnpm run build:app
           test -f app/dist/index.html
           grep -Fq 'Brain' app/dist/index.html
+          grep -R -Fq 'BOOST' app/dist
+          grep -R -Fq 'Benchmark' app/dist
+          grep -R -Fq 'Restart JARVIS' app/dist
           rm -rf "$TMP_HOME"
+
+      - name: Validate Brain control safety wiring
+        run: |
+          grep -Fq "action === 'restart-jarvis' || action === 'restart-ollama'" server/src/core/http-server/api/brain-control/post.ts
+          grep -Fq "JARVIS_ALLOW_SYSTEM_SERVICE_CONTROL" server/src/core/http-server/api/brain-control/post.ts
+          grep -Fq "'-n', 'systemctl', 'restart', 'ollama.service'" server/src/core/http-server/api/brain-control/post.ts
+          grep -Fq "keep_alive: 0" server/src/core/http-server/api/brain-control/post.ts
+          grep -Fq "action: 'approve'" app/src/js/brain-dashboard.js
 
       - name: Test low-resource profile migration
         run: |
