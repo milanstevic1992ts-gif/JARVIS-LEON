@@ -1,6 +1,7 @@
 {
   "base_url": "",
   "api_token": "",
-  "allow_write_actions": false,
-  "timeout_ms": 10000
+  "timeout_ms": 10000,
+  "writes_enabled": true,
+  "yellow_auto_approve": false
 }
