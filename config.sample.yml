@@ -100,8 +100,9 @@ llm:
         env: LEON_CELERIS_API_KEY
 
 mood:
+  # Low-resource default avoids startup/periodic weather lookups used by auto mood.
   # Mood mode: auto | default | tired | cocky | sad | angry
-  mode: auto
+  mode: default
 
 runtime:
   # Optional total agent iteration limit, including the finishing pass (default: 256).
