@@ -2,6 +2,20 @@ import AISDKRemoteLLMProvider from '@/core/llm-manager/llm-providers/ai-sdk-remo
 import type { ResolvedLLMTarget } from '@/core/llm-manager/llm-routing'
 import { CONFIG_MANAGER } from '@/config'
 
+export function transformOllamaRequestBody(
+  model: string,
+  args: Record<string, unknown>
+): Record<string, unknown> {
+  if (!model.toLowerCase().startsWith('qwen3.5')) {
+    return args
+  }
+
+  return {
+    ...args,
+    think: false
+  }
+}
+
 /**
  * JARVIS local Ollama provider.
  *
@@ -19,7 +33,9 @@ export default class OllamaLLMProvider extends AISDKRemoteLLMProvider {
         CONFIG_MANAGER.getProviderBaseURL('ollama') ||
         'http://127.0.0.1:11434/v1',
       flavor: 'openai-compatible',
-      requiresApiKey: false
+      requiresApiKey: false,
+      transformRequestBody: (args) =>
+        transformOllamaRequestBody(target.model, args)
     })
   }
 }
