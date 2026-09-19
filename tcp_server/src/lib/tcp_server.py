@@ -80,7 +80,7 @@ class TCPServer:
             })
 
         def interrupt_leon_speech_callback():
-            self.log('Interrupting Leon speech because owner started speaking')
+            self.log('Interrupting JARVIS speech because owner started speaking')
             self.send_tcp_message({
                 'topic': 'asr-interrupt-leon-speech',
                 'data': {}
