@@ -68,6 +68,9 @@ interface GE360Response {
   status?: number
   data?: unknown
   error?: string
+  policy?: {
+    risk: JarvisRiskLevel
+  }
 }
 
 export default class GE360Tool extends Tool {
@@ -490,7 +493,7 @@ export default class GE360Tool extends Tool {
     baseURL: string,
     rawPath: string,
     options: RequestOptions
-  ): Promise<GE360Response> {
+  ): Promise<GE360Response | OwnerActionRequired> {
     const path = this.validateRelativePath(rawPath)
     if (!path) {
       return {
@@ -501,21 +504,87 @@ export default class GE360Tool extends Tool {
     }
 
     const method = options.method || 'GET'
-    if (!this.isMethodAllowed(method)) {
+    const action: JarvisActionDescriptor = {
+      toolkitId: TOOLKIT_ID,
+      toolId: TOOL_ID,
+      functionName: 'request',
+      method,
+      path,
+      params: {
+        query: options.query || null,
+        body: options.body ?? null
+      },
+      description: 'GE360 ' + method + ' ' + path
+    }
+    const risk = classifyJarvisAction(action)
+    const policy = getJarvisPolicyManager()
+
+    if (risk !== 'green' && !this.areWritesEnabled()) {
+      policy.recordExecution(action, risk, false, {
+        reason: 'master_write_gate_disabled'
+      })
+
       return {
         success: false,
-        base_url: baseURL,
-        method,
-        path,
-        error:
-          method === 'DELETE'
-            ? 'DELETE is blocked by the GE360 Tool Bus in this phase.'
-            : 'Write actions are disabled. Set allow_write_actions=true in GE360 tool settings to enable POST, PUT or PATCH.'
+        status: 'owner_action_required',
+        error: 'GE360 write actions are disabled by the master write gate.',
+        owner_action: {
+          message:
+            'Le scritture GE360 sono disattivate nel profilo. Imposta writes_enabled=true nelle impostazioni del tool GE360 prima di autorizzare modifiche.'
+        },
+        policy: {
+          risk
+        }
       }
     }
 
+    const yellowAutoApproved =
+      risk === 'yellow' && this.getSettings().yellow_auto_approve === true
+
+    if (risk !== 'green' && !yellowAutoApproved) {
+      const approved = policy.consumeApproved(action)
+
+      if (!approved) {
+        const approval = policy.requestApproval(action, risk)
+
+        return {
+          success: false,
+          status: 'owner_action_required',
+          error:
+            'JARVIS ' +
+            risk.toUpperCase() +
+            ' policy requires owner approval.',
+          owner_action: {
+            message:
+              'Azione ' +
+              risk.toUpperCase() +
+              ' bloccata: ' +
+              method +
+              ' ' +
+              path +
+              '. Per autorizzarla una sola volta usa /jarvis approve ' +
+              approval.id +
+              ', poi ripeti la richiesta originale. Per rifiutarla usa /jarvis deny ' +
+              approval.id +
+              '.'
+          },
+          policy: {
+            risk,
+            approval_id: approval.id,
+            expires_at: new Date(approval.expiresAt).toISOString()
+          }
+        }
+      }
+    }
+
+    policy.recordAllowed(action, risk)
+
     const url = this.buildURL(baseURL, path, options.query)
     const result = await this.fetchAbsoluteURL(url, method, options.body)
+
+    policy.recordExecution(action, risk, result.success, {
+      http_status: result.status ?? null
+    })
 
     return {
       success: result.success,
@@ -523,6 +592,7 @@ export default class GE360Tool extends Tool {
       method,
       path,
       status: result.status,
+      policy: { risk },
       ...(result.success ? { data: result.data } : { error: result.error })
     }
   }
@@ -642,12 +712,18 @@ export default class GE360Tool extends Tool {
     return path
   }
 
-  private isMethodAllowed(method: HTTPMethod): boolean {
-    if (method === 'GET') {
-      return true
+  private areWritesEnabled(): boolean {
+    const settings = this.getSettings()
+
+    if (typeof settings.writes_enabled === 'boolean') {
+      return settings.writes_enabled
     }
 
-    return this.getSettings().allow_write_actions === true
+    if (typeof settings.allow_write_actions === 'boolean') {
+      return settings.allow_write_actions
+    }
+
+    return true
   }
 
   private getSettings(): GE360Settings {
