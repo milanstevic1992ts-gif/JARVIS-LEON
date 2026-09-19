@@ -1,10 +1,10 @@
 const SETUP_BANNER = `
-██╗     ███████╗ ██████╗ ███╗   ██╗      █████╗ ██╗
-██║     ██╔════╝██╔═══██╗████╗  ██║     ██╔══██╗██║
-██║     █████╗  ██║   ██║██╔██╗ ██║     ███████║██║
-██║     ██╔══╝  ██║   ██║██║╚██╗██║     ██╔══██║██║
-███████╗███████╗╚██████╔╝██║ ╚████║     ██║  ██║██║
-╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═╝  ╚═╝╚═╝
+     ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗
+     ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝
+     ██║███████║██████╔╝██║   ██║██║███████╗
+██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║
+╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║
+ ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝
 `.trim()
 
 const GRADIENT_STOPS = [
@@ -65,11 +65,10 @@ function colorizeBanner(banner) {
     .join('')
 }
 
-/**
- * Print the setup banner once at the beginning of postinstall.
- */
 export function printSetupBanner() {
   console.log('')
   console.log(colorizeBanner(SETUP_BANNER))
+  console.log('')
+  console.log('GE360 JARVIS · Local AI Operations Core')
   console.log('')
 }
