@@ -105,7 +105,11 @@ export default class JarvisQuickChat {
     document.body.append(this.toggleButton, this.root)
 
     this.toggleButton.addEventListener('click', () => {
-      this.isOpen ? this.close() : this.open()
+      if (this.isOpen) {
+        this.close()
+      } else {
+        this.open()
+      }
     })
 
     this.renderFeeds()
