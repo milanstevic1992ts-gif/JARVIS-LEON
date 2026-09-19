@@ -267,6 +267,11 @@ async function migrateLegacyConfigValues(document, shouldOverwriteScalarValues) 
       ['llm', 'providers', 'sglang', 'base_url'],
       (value) => value.trim()
     ],
+    [
+      'JARVIS_OLLAMA_BASE_URL',
+      ['llm', 'providers', 'ollama', 'base_url'],
+      (value) => value.trim()
+    ],
     ['LEON_WAKE_WORD', ['voice', 'wake_word_enabled'], toBoolean],
     ['LEON_ASR', ['voice', 'asr', 'enabled'], toBoolean],
     ['LEON_ASR_PROVIDER', ['voice', 'asr', 'provider'], (value) => value.trim()],
