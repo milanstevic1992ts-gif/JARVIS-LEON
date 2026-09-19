@@ -46,6 +46,14 @@ jobs:
             tools/ge360/core/src/nodejs/ge360-tool.ts \
             tools/ge360/core/src/nodejs/index.ts
 
+      - name: Validate Debian deployment scripts
+        run: |
+          bash -n deploy/debian/install-service.sh
+          bash -n deploy/debian/jarvis-doctor.sh
+          bash -n deploy/debian/prepare-local-ai.sh
+          grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
+          grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
+
       - name: Validate JARVIS configuration and GE360 manifests
         run: |
           node --input-type=module - <<'NODE'
