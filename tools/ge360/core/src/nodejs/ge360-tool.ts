@@ -158,7 +158,9 @@ export default class GE360Tool extends Tool {
     return {
       success: true,
       base_url: baseURL,
-      write_actions_enabled: this.getSettings().allow_write_actions === true,
+      writes_enabled: this.areWritesEnabled(),
+      yellow_auto_approve: this.getSettings().yellow_auto_approve === true,
+      safety_policy: getJarvisPolicyManager().getPolicySummary(),
       health_checks: healthChecks,
       openapi: openAPI
     }
