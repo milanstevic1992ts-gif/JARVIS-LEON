@@ -38,11 +38,14 @@ jobs:
             server/src/core/llm-manager/types.ts \
             server/src/core/llm-manager/llm-provider.ts \
             server/src/core/llm-manager/llm-routing.ts \
+            server/src/core/llm-manager/model-context-windows.ts \
+            server/src/core/llm-manager/llm-duties/react-llm-duty/constants.ts \
             server/src/core/config-states/model-state.ts \
             server/src/core/jarvis-policy/jarvis-policy-manager.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
             scripts/setup/setup.js \
+            scripts/jarvis/apply-low-resource-profile.js \
             server/src/core/context-manager/context-files/leon-context-file.ts \
             server/src/core/context-manager/context-files/leon-runtime-context-file.ts \
             server/src/built-in-command/commands/voice-command/voice-command.ts \
@@ -76,8 +79,12 @@ jobs:
           bash -n deploy/debian/install-service.sh
           bash -n deploy/debian/jarvis-doctor.sh
           bash -n deploy/debian/prepare-local-ai.sh
+          bash -n deploy/debian/configure-ollama-low-resource.sh
           grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
           grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
+          grep -Fq 'JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192' deploy/debian/ge360-jarvis.service
+          grep -Fq 'OLLAMA_MAX_LOADED_MODELS=1' deploy/debian/ollama-low-resource.conf
+          grep -Fq 'OLLAMA_KV_CACHE_TYPE=q8_0' deploy/debian/ollama-low-resource.conf
 
       - name: Validate JARVIS configuration and GE360 manifests
         run: |
@@ -86,8 +93,11 @@ jobs:
           import YAML from 'yaml'
           const c = YAML.parse(fs.readFileSync('config.sample.yml', 'utf8'))
           if (c.language !== 'it-IT') throw new Error('language')
-          if (c.llm.default !== 'ollama/qwen3.5:9b') throw new Error('default model')
+          if (c.llm.default !== 'ollama/qwen3.5:4b') throw new Error('default model')
           if (c.llm.providers.ollama.base_url !== 'http://127.0.0.1:11434/v1') throw new Error('ollama URL')
+          if (c.runtime.agent_max_iterations !== 64) throw new Error('agent iterations')
+          if (c.runtime.pulse_enabled !== false) throw new Error('pulse must default off')
+          if (c.runtime.private_diary_enabled !== false) throw new Error('private diary must default off')
           const toolkit = JSON.parse(fs.readFileSync('tools/ge360/toolkit.json', 'utf8'))
           const tool = JSON.parse(fs.readFileSync('tools/ge360/core/tool.json', 'utf8'))
           const settings = JSON.parse(fs.readFileSync('tools/ge360/core/settings.sample.json', 'utf8'))
