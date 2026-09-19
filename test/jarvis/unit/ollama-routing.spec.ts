@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { LLMProviders } from '@/core/llm-manager/types'
 import { resolveConfiguredLLMTarget } from '@/core/llm-manager/llm-routing'
+import { LOCAL_LLM_CONTEXT_WINDOW_TOKENS, isLocalLLMProvider } from '@/core/llm-manager/model-context-windows'
+import { AGENT_MAX_PARALLEL_TOOL_CALLS } from '@/core/llm-manager/llm-duties/react-llm-duty/constants'
 
 const OPTIONS = {
   defaultInstalledLLMPath: '/models/default.gguf',
@@ -11,15 +13,21 @@ const OPTIONS = {
 describe('JARVIS Ollama routing', () => {
   it('keeps an Ollama model identifier instead of converting it into a file path', () => {
     const target = resolveConfiguredLLMTarget(
-      'ollama/qwen3.5:9b',
+      'ollama/qwen3.5:4b',
       OPTIONS
     )
 
     expect(target.provider).toBe(LLMProviders.Ollama)
-    expect(target.model).toBe('qwen3.5:9b')
+    expect(target.model).toBe('qwen3.5:4b')
     expect(target.isLocal).toBe(true)
     expect(target.isResolved).toBe(true)
-    expect(target.label).toBe('ollama/qwen3.5:9b')
+    expect(target.label).toBe('ollama/qwen3.5:4b')
+  })
+
+  it('uses conservative local-resource defaults for Ollama', () => {
+    expect(isLocalLLMProvider(LLMProviders.Ollama)).toBe(true)
+    expect(LOCAL_LLM_CONTEXT_WINDOW_TOKENS).toBe(8_192)
+    expect(AGENT_MAX_PARALLEL_TOOL_CALLS).toBe(2)
   })
 
   it('requires an explicit model name for Ollama', () => {
