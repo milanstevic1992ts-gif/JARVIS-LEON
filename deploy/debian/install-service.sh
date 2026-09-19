@@ -55,7 +55,7 @@ sed \
   -e "s|__JARVIS_HOME__|${RUN_HOME}|g" \
   -e "s|__JARVIS_PATH__|${JARVIS_PATH}|g" \
   -e "s|__JARVIS_DIR__|${REPO_DIR}|g" \
-  -e "s|__PNPM_BIN__|${PNPM_BIN}|g" \
+  -e "s|__NODE_BIN__|${NODE_BIN}|g" \
   "${TEMPLATE}" > "${UNIT_PATH}"
 
 systemctl daemon-reload
