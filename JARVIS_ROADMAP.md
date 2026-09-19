@@ -40,7 +40,8 @@ Cervello locale predefinito: Ollama + `qwen3.5:9b`.
 - [x] Interfaccia e messaggi voce rinominati JARVIS.
 - [ ] Modello wake word dedicato "Jarvis".
 - [ ] Test microfono continuo e anti-eco.
-- [ ] ASR italiano ottimizzato.
+- [x] ASR collegato alla lingua del profilo con hotword contestuali JARVIS.
+- [ ] Tuning ASR italiano su microfono reale.
 - [ ] TTS italiano predefinito.
 - [ ] Modalità push-to-talk + wake word.
 
