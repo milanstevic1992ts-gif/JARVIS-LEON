@@ -4,17 +4,43 @@
 
 ## Cervello predefinito
 
-JARVIS usa **Ollama** come runtime locale e **Qwen3.5 9B** come modello principale predefinito. Il provider è configurato su `http://127.0.0.1:11434/v1` tramite l'API OpenAI-compatible di Ollama.
+JARVIS usa **Ollama** come runtime locale e **Qwen3.5 4B** come modello principale predefinito. Il provider è configurato su `http://127.0.0.1:11434/v1` tramite l'API OpenAI-compatible di Ollama.
 
 Configurazione prevista:
 
 ```yaml
 language: it-IT
 llm:
-  default: ollama/qwen3.5:9b
+  default: ollama/qwen3.5:4b
   workflow: null
-  agent: ollama/qwen3.5:9b
+  agent: ollama/qwen3.5:4b
 ```
+
+## Profilo Debian low-resource
+
+Per il server GE360 il default è ottimizzato per stabilità:
+
+- Qwen3.5 4B (~3.4 GB) invece del 9B;
+- contesto locale 8K;
+- un solo modello Ollama caricato e una richiesta Ollama alla volta;
+- massimo 2 tool call JARVIS parallele;
+- pulse, private diary e voce disabilitati di default;
+- agent limitato a 64 iterazioni;
+- KV cache Ollama q8_0;
+- Node.js con heap limitato nel servizio systemd.
+
+Per applicare il profilo a un'installazione esistente:
+
+```bash
+pnpm run jarvis:low-resource
+pnpm run jarvis:prepare-ai
+pnpm run build
+sudo bash deploy/debian/install-service.sh
+sudo systemctl restart ge360-jarvis
+pnpm run jarvis:doctor
+```
+
+Il 9B resta opzionale per macchine più potenti.
 
 ## Provenienza e licenza
 
