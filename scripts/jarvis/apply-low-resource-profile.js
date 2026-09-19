@@ -33,6 +33,9 @@ fs.copyFileSync(configPath, backupPath)
 config.routing ||= {}
 config.routing.mode = 'smart'
 
+config.mood ||= {}
+config.mood.mode = 'default'
+
 config.llm ||= {}
 config.llm.default = 'ollama/qwen3.5:4b'
 config.llm.agent = 'ollama/qwen3.5:4b'
@@ -61,3 +64,4 @@ console.log(`Backup:  ${backupPath}`)
 console.log('Modello: ollama/qwen3.5:4b')
 console.log('Agent iterations: 64')
 console.log('Pulse/diary/voice background: off')
+console.log('Mood/weather background: default/off')
