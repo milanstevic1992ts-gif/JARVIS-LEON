@@ -1590,3 +1590,193 @@ textarea::-webkit-scrollbar-thumb {
     transition: none !important;
   }
 }
+
+
+/* Brain control center */
+.brain-control-section-label {
+  margin: 14px 0 7px;
+  color: rgba(255, 255, 255, 0.36);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brain-control-section-label:first-of-type {
+  margin-top: 0;
+}
+
+.brain-control-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.brain-control-row--actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.brain-control-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.brain-control-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  color: #fff;
+  border-color: rgba(99, 174, 255, 0.5);
+  background: rgba(28, 117, 219, 0.11);
+}
+
+.brain-control-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.34;
+}
+
+.brain-control-button--active {
+  color: #fff;
+  border-color: rgba(106, 180, 255, 0.72);
+  background: rgba(28, 117, 219, 0.17);
+  box-shadow: 0 0 18px rgba(28, 117, 219, 0.13);
+}
+
+.brain-control-button--eco.brain-control-button--active {
+  border-color: rgba(84, 217, 139, 0.65);
+  background: rgba(84, 217, 139, 0.09);
+  box-shadow: 0 0 18px rgba(84, 217, 139, 0.1);
+}
+
+.brain-control-button--boost.brain-control-button--active {
+  border-color: rgba(237, 41, 122, 0.64);
+  background: rgba(237, 41, 122, 0.1);
+  box-shadow: 0 0 20px rgba(237, 41, 122, 0.12);
+}
+
+.brain-control-button--green {
+  color: #82dfa8;
+}
+
+.brain-control-button--yellow {
+  color: #ffd273;
+}
+
+.brain-control-button--red {
+  color: #ff8aa6;
+}
+
+.brain-control-approval {
+  margin-top: 14px;
+  padding: 13px;
+  border: 1px solid rgba(237, 41, 122, 0.26);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(237, 41, 122, 0.08), rgba(255, 188, 78, 0.04));
+}
+
+.brain-control-approval__label {
+  color: #ff8ca9;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.brain-control-approval__description {
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+  line-height: 1.38;
+}
+
+.brain-control-approval__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.brain-control-notice {
+  margin-top: 12px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.brain-benchmark {
+  margin-top: 16px;
+  padding-top: 4px;
+}
+
+.brain-benchmark__bars {
+  display: flex;
+  height: 132px;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.brain-benchmark__column {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  grid-template-rows: 18px 88px 18px;
+  align-items: end;
+  justify-items: center;
+  gap: 3px;
+}
+
+.brain-benchmark__value,
+.brain-benchmark__label {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.65rem;
+}
+
+.brain-benchmark__track {
+  position: relative;
+  width: 100%;
+  max-width: 28px;
+  height: 88px;
+  border-radius: 7px 7px 2px 2px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.brain-benchmark__bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 7px 7px 2px 2px;
+  background: linear-gradient(180deg, #6cb5ff, #655ee6 56%, #ed297a);
+  box-shadow: 0 0 13px rgba(28, 117, 219, 0.18);
+  transition: height 0.3s ease;
+}
+
+@media (max-width: 520px) {
+  .brain-control-row,
+  .brain-control-row--actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
