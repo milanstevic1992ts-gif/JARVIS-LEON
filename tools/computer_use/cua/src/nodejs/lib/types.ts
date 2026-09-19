@@ -1,7 +1,24 @@
-import type {
-  CuaDriverLike,
-  ToolResult as CuaToolResult
-} from '@trycua/cua-driver'
+export interface CuaToolResult {
+  isError?: boolean
+  errorCode?: string
+  text?: string
+  structuredJson?: string
+  rawJson?: string
+  images: Array<unknown>
+}
+
+interface CuaDriverLike {
+  callTool(
+    name: string,
+    parametersJson: string
+  ): Promise<CuaToolResult>
+  isAvailable(): boolean
+  listToolsJson(): Promise<string>
+  shutdown(): Promise<void>
+  setAgentCursorEnabled?(
+    input: Record<string, unknown>
+  ): Promise<CuaToolResult>
+}
 
 import type {
   ToolExecutionContext,
@@ -125,4 +142,3 @@ export interface StructuredComputerUseFailure {
   message: string
 }
 
-export type { CuaToolResult }
