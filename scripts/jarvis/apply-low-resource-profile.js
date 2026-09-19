@@ -30,6 +30,8 @@ const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
 const backupPath = `${configPath}.backup-low-resource-${timestamp}`
 fs.copyFileSync(configPath, backupPath)
 
+config.language = 'it-IT'
+
 config.routing ||= {}
 config.routing.mode = 'smart'
 
@@ -61,6 +63,7 @@ console.log('Profilo low-resource applicato.')
 console.log(`Profilo: ${profileName}`)
 console.log(`Config:  ${configPath}`)
 console.log(`Backup:  ${backupPath}`)
+console.log('Lingua:  it-IT')
 console.log('Modello: ollama/qwen3.5:4b')
 console.log('Agent iterations: 64')
 console.log('Pulse/diary/voice background: off')
