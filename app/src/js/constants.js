@@ -1,22 +1,14 @@
 export const INIT_MESSAGES = [
   [
-    'Hi, I\'m Leon, your open-source personal assistant. I\'m still evolving, but I\'m here to help.'
+    'Ciao, sono JARVIS, il tuo assistente operativo GE360. Posso ragionare, usare strumenti e lavorare sui servizi collegati.'
   ],
   [
-    `Want to follow the project?
-
-- Regular progress updates: https://x.com/grenlouis
-- Blog posts: https://blog.getleon.ai/
-- Email updates: https://leonai.substack.com/subscribe`
+    'Il cervello locale predefinito è Qwen tramite Ollama. I dati e gli strumenti locali restano sul server quando non serve un servizio esterno.'
   ],
   [
-    `Come hang out on Discord: https://discord.gg/MNQqqKg
-That's where people will help shape the ecosystem and build what comes next.`
-  ],
-  [
-    'Leon is built independently in spare time. If you want to help accelerate development, you can support the project here: http://sponsor.getleon.ai/'
+    'Puoi chiedermi di controllare GE360, analizzare un problema, leggere i log, lavorare sui repository o usare le funzioni disponibili.'
   ]
 ]
 
 export const ASR_DISABLED_MESSAGE =
-  'Voice mode is not enabled yet. Run /voice setup from the chat, wait for the resources to install, then restart Leon by using /restart.'
+  'La modalità voce non è ancora attiva. Esegui /voice setup, attendi l’installazione delle risorse e poi riavvia JARVIS con /restart.'
