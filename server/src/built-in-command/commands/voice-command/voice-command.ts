@@ -379,6 +379,18 @@ export class VoiceCommand extends BuiltInCommand {
       })
     }
 
+    if (
+      enabled &&
+      feature.name === 'wake-word' &&
+      !getVoiceResourceState().wakeWordModel
+    ) {
+      items.push({
+        label:
+          'Il modello wake word Hey Jarvis non è ancora installato. Il wake word resterà inattivo finché Hey_Jarvis.onnx non sarà disponibile.',
+        tone: 'warning'
+      })
+    }
+
     return {
       status: 'completed',
       result: createListResult({
@@ -425,7 +437,8 @@ export class VoiceCommand extends BuiltInCommand {
       createStatusItem('PyTorch', resourceState.pytorch),
       createStatusItem('ASR models', resourceState.asrModels),
       createStatusItem('TTS model', resourceState.ttsModel),
-      createStatusItem('TTS language models', resourceState.ttsLanguageModels)
+      createStatusItem('TTS language models', resourceState.ttsLanguageModels),
+      createStatusItem('Hey Jarvis model', resourceState.wakeWordModel)
     ]
   }
 }
