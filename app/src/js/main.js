@@ -9,6 +9,7 @@ import { BuiltInCommands } from './built-in-commands'
 import FileSystemAutocomplete from './file-system-autocomplete'
 import SessionsPanel from './sessions'
 import BrainDashboard from './brain-dashboard'
+import JarvisQuickChat from './jarvis-quick-chat'
 import { ensureProfileAuthentication } from './profile-auth'
 // import Recorder from './recorder'
 // import listener from './listener'
@@ -48,9 +49,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       initialPayload: sessionsResponse.data,
       onSelect: (sessionId) => client.setActiveSession(sessionId)
     })
+    const quickChat = new JarvisQuickChat({
+      client
+    })
     const brainDashboard = new BrainDashboard({
       serverUrl,
-      socket: client.socket
+      socket: client.socket,
+      quickChat
     })
     const fileSystemAutocomplete = new FileSystemAutocomplete({
       serverUrl,
@@ -104,6 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     client.setSessionPanel(sessionsPanel)
     sessionsPanel.init()
     client.init()
+    quickChat.init()
     brainDashboard.init()
     fileSystemAutocomplete.attach(input)
     builtInCommands.init()
