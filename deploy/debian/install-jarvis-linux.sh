@@ -154,10 +154,34 @@ if ! curl -fsS --max-time 3 http://127.0.0.1:11434/api/version >/dev/null 2>&1; 
   die "Ollama installato ma non risponde su 127.0.0.1:11434."
 fi
 
-log "5/10 · Dipendenze e bootstrap JARVIS"
+log "5/10 · Runtime Python/uv + bootstrap JARVIS"
 cd "${REPO_DIR}"
 
+SYSTEM_PYTHON="$(command -v python3 || true)"
+if [[ -z "${SYSTEM_PYTHON}" ]]; then
+  die "python3 non trovato."
+fi
+
+if ! command -v uv >/dev/null 2>&1; then
+  log "Installo uv (Astral) per gli ambienti Python di JARVIS..."
+  curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
+fi
+
+UV_BIN="$(command -v uv || true)"
+if [[ -z "${UV_BIN}" && -x "${HOME}/.local/bin/uv" ]]; then
+  UV_BIN="${HOME}/.local/bin/uv"
+fi
+
+if [[ -z "${UV_BIN}" ]]; then
+  die "uv non trovato dopo l'installazione."
+fi
+
+ok "Python runtime: ${SYSTEM_PYTHON}"
+ok "uv runtime:     ${UV_BIN}"
+
 export LEON_PROFILE="${PROFILE}"
+export LEON_PYTHON_PATH="${SYSTEM_PYTHON}"
+export LEON_UV_PATH="${UV_BIN}"
 export GITHUB_ACTIONS=1
 export JARVIS_OLLAMA_BASE_URL="http://127.0.0.1:11434/v1"
 
