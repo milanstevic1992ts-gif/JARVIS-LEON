@@ -25,10 +25,15 @@ if [[ -z "${RUN_HOME}" || ! -d "${RUN_HOME}" ]]; then
 fi
 
 PNPM_BIN="$(sudo -u "${RUN_USER}" -H bash -lc 'command -v pnpm || true')"
-if [[ -z "${PNPM_BIN}" ]]; then
-  echo "pnpm non trovato per ${RUN_USER}. Installa le dipendenze del progetto prima del servizio."
+NODE_BIN="$(sudo -u "${RUN_USER}" -H bash -lc 'command -v node || true')"
+if [[ -z "${PNPM_BIN}" || -z "${NODE_BIN}" ]]; then
+  echo "node/pnpm non trovati per ${RUN_USER}. Installa le dipendenze del progetto prima del servizio."
   exit 1
 fi
+
+NODE_DIR="$(dirname "${NODE_BIN}")"
+PNPM_DIR="$(dirname "${PNPM_BIN}")"
+JARVIS_PATH="${NODE_DIR}:${PNPM_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [[ ! -f "${REPO_DIR}/package.json" ]]; then
   echo "Repository JARVIS non valida: ${REPO_DIR}"
@@ -40,9 +45,15 @@ if [[ ! -d "${REPO_DIR}/node_modules" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${REPO_DIR}/server/dist/index.js" ]]; then
+  echo "Build production non trovato. Avvio pnpm run build come ${RUN_USER}..."
+  sudo -u "${RUN_USER}" -H bash -lc "cd '${REPO_DIR}' && pnpm run build"
+fi
+
 sed \
   -e "s|__JARVIS_USER__|${RUN_USER}|g" \
   -e "s|__JARVIS_HOME__|${RUN_HOME}|g" \
+  -e "s|__JARVIS_PATH__|${JARVIS_PATH}|g" \
   -e "s|__JARVIS_DIR__|${REPO_DIR}|g" \
   -e "s|__PNPM_BIN__|${PNPM_BIN}|g" \
   "${TEMPLATE}" > "${UNIT_PATH}"
