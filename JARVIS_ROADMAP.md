@@ -4,7 +4,7 @@
 
 Base upstream: Leon 2.0 `develop`.
 
-Cervello locale predefinito: Ollama + `qwen3.5:9b`.
+Cervello locale predefinito: Ollama + `qwen3.5:4b`.
 
 ## Fase 1 — Base AI
 
@@ -45,6 +45,21 @@ Cervello locale predefinito: Ollama + `qwen3.5:9b`.
 - [ ] Tuning ASR italiano su microfono reale.
 - [ ] TTS italiano predefinito.
 - [ ] Modalità push-to-talk + wake word.
+
+## Fase 3.5 — Prestazioni Debian low-resource
+
+- [x] Qwen3.5 4B come modello predefinito.
+- [x] Context locale limitato a 8K.
+- [x] Ollama riconosciuto come provider locale dal budget del contesto.
+- [x] Un solo modello Ollama caricato.
+- [x] Una sola richiesta Ollama parallela.
+- [x] Massimo 2 tool call JARVIS parallele.
+- [x] KV cache q8_0 e Flash Attention.
+- [x] Pulse/private diary disabilitati di default.
+- [x] Agent max iterations ridotto a 64.
+- [x] Migrazione sicura del profilo esistente con backup.
+- [x] Diagnostica RAM/VRAM/swap/Ollama.
+- [ ] Benchmark reale sul server Debian.
 
 ## Fase 4 — Debian
 
