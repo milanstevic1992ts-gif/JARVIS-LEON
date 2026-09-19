@@ -43,10 +43,16 @@ jobs:
             server/src/core/llm-manager/persona.ts \
             server/src/core/config-states/model-state.ts \
             server/src/core/jarvis-policy/jarvis-policy-manager.ts \
+            server/src/core/http-server/http-server.ts \
+            server/src/core/http-server/api/brain-status/get.ts \
+            server/src/core/http-server/api/brain-status/index.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
             scripts/setup/setup.js \
             scripts/jarvis/apply-low-resource-profile.js \
+            app/src/js/brain-dashboard.js \
+            app/src/js/main.js \
+            app/src/js/profile-auth.js \
             server/src/core/context-manager/context-files/leon-context-file.ts \
             server/src/core/context-manager/context-files/leon-runtime-context-file.ts \
             server/src/built-in-command/commands/voice-command/voice-command.ts \
@@ -88,6 +94,16 @@ jobs:
           grep -Fq 'JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192' deploy/debian/ge360-jarvis.service
           grep -Fq 'OLLAMA_MAX_LOADED_MODELS=1' deploy/debian/ollama-low-resource.conf
           grep -Fq 'OLLAMA_KV_CACHE_TYPE=q8_0' deploy/debian/ollama-low-resource.conf
+
+      - name: Build production app with Brain Dashboard
+        run: |
+          TMP_HOME="$(mktemp -d)"
+          mkdir -p "$TMP_HOME/profiles/just-me"
+          cp config.sample.yml "$TMP_HOME/profiles/just-me/config.yml"
+          LEON_HOME="$TMP_HOME" pnpm run build:app
+          test -f app/dist/index.html
+          grep -Fq 'Brain' app/dist/index.html
+          rm -rf "$TMP_HOME"
 
       - name: Test low-resource profile migration
         run: |
