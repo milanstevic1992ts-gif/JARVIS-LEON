@@ -82,9 +82,30 @@ jobs:
           bash -n deploy/debian/configure-ollama-low-resource.sh
           grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
           grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
+          grep -Fq 'Environment=PATH=__JARVIS_PATH__' deploy/debian/ge360-jarvis.service
           grep -Fq 'JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192' deploy/debian/ge360-jarvis.service
           grep -Fq 'OLLAMA_MAX_LOADED_MODELS=1' deploy/debian/ollama-low-resource.conf
           grep -Fq 'OLLAMA_KV_CACHE_TYPE=q8_0' deploy/debian/ollama-low-resource.conf
+
+      - name: Test low-resource profile migration
+        run: |
+          TMP_HOME="$(mktemp -d)"
+          mkdir -p "$TMP_HOME/profiles/just-me"
+          cp config.sample.yml "$TMP_HOME/profiles/just-me/config.yml"
+          LEON_HOME="$TMP_HOME" node scripts/jarvis/apply-low-resource-profile.js
+          test "$(find "$TMP_HOME/profiles/just-me" -name 'config.yml.backup-low-resource-*' | wc -l)" -eq 1
+          LEON_HOME="$TMP_HOME" node --input-type=module - <<'NODE'
+          import fs from 'node:fs'
+          import path from 'node:path'
+          import YAML from 'yaml'
+          const home = process.env.LEON_HOME
+          const c = YAML.parse(fs.readFileSync(path.join(home, 'profiles', 'just-me', 'config.yml'), 'utf8'))
+          if (c.llm.default !== 'ollama/qwen3.5:4b') throw new Error('migrated model')
+          if (c.runtime.agent_max_iterations !== 64) throw new Error('migrated agent iterations')
+          if (c.runtime.pulse_enabled !== false) throw new Error('migrated pulse')
+          if (c.runtime.private_diary_enabled !== false) throw new Error('migrated diary')
+          NODE
+          rm -rf "$TMP_HOME"
 
       - name: Validate JARVIS configuration and GE360 manifests
         run: |
