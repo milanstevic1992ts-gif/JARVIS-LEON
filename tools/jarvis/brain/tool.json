@@ -1,0 +1,82 @@
+{
+  "$schema": "../../../schemas/tool-schemas/tool.json",
+  "tool_id": "brain",
+  "toolkit_id": "jarvis",
+  "name": "JARVIS Brain",
+  "description": "Inspect and tune the local Ollama brain without bypassing JARVIS safety policy.",
+  "progressive_guidance": "Use getStatus before diagnosing slowness. Use benchmark to measure real local token speed. ECO uses Qwen 4B/32 iterations, NORMAL Qwen 4B/64, BOOST Qwen 9B/96. setMode, setModel and unloadModel require one-time owner approval. If a requested model is not installed, report the exact ollama pull command instead of downloading it silently.",
+  "icon_name": "brain-line",
+  "author": {
+    "name": "GE360 JARVIS",
+    "url": "https://github.com/milanstevic1992ts-gif/JARVIS-LEON"
+  },
+  "functions": {
+    "getStatus": {
+      "description": "Return current JARVIS model, low-resource mode, RAM/VRAM and Ollama loaded/installed model state.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "benchmark": {
+      "description": "Benchmark local Ollama generation speed for the active or selected supported model.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": ["qwen3.5:4b", "qwen3.5:9b"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "setMode": {
+      "description": "Switch JARVIS to ECO, NORMAL or BOOST. Requires one-time owner approval.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": ["eco", "normal", "boost"]
+          }
+        },
+        "required": ["mode"],
+        "additionalProperties": false
+      }
+    },
+    "setModel": {
+      "description": "Switch the unified JARVIS Ollama model between Qwen 4B and Qwen 9B. Requires one-time owner approval.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": ["qwen3.5:4b", "qwen3.5:9b"]
+          }
+        },
+        "required": ["model"],
+        "additionalProperties": false
+      }
+    },
+    "unloadModel": {
+      "description": "Unload the active or selected Ollama model from memory/VRAM. Requires one-time owner approval.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": ["qwen3.5:4b", "qwen3.5:9b"]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
