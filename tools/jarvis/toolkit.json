@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/toolkit-schemas/toolkit.json",
+  "name": "JARVIS Brain",
+  "description": "Inspect and tune the local JARVIS/Ollama brain from natural-language conversations.",
+  "progressive_guidance": "Use these tools when the owner asks about JARVIS performance, current model, RAM/VRAM pressure, benchmark, ECO/NORMAL/BOOST modes, model switching or unloading. Read-only status and benchmark are automatic. Model/mode/unload changes require the JARVIS one-time approval policy. Do not bypass the policy with shell commands.",
+  "icon_name": "brain-line",
+  "context_files": [
+    "LEON.md",
+    "HOST_SYSTEM.md",
+    "SYSTEM_RESOURCES.md"
+  ],
+  "tools": [
+    "brain"
+  ]
+}
