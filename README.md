@@ -1,34 +1,30 @@
-<p align="center">
-  <a href="https://getleon.ai"><img width="800" src="https://getleon.ai/img/hero-animation.gif" /></a>
-</p>
+# GE360 JARVIS
 
-<h1 align="center">
-  <a href="https://getleon.ai"><img width="96" src="https://getleon.ai/img/logo.svg" alt="Leon"></a><br>
-  Leon
-</h1>
+**JARVIS** è l'assistente AI personale e operativo di GE360, costruito sulla base open-source di Leon 2.0 e progressivamente adattato per lavorare con il server Debian, i moduli GE360, GitHub e gli strumenti dell'attività.
 
-_<p align="center">Your open-source personal AI assistant.</p>_
+## Cervello predefinito
 
-<p align="center">
-  <a href="https://discord.gg/MNQqqKg"><img src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white" /></a>
-  <a href="https://github.com/leon-ai/leon/blob/develop/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-1c75db?style=for-the-badge" /></a>
-</p>
+JARVIS usa **Ollama** come runtime locale e **Qwen3.5 9B** come modello principale predefinito. Il provider è configurato su `http://127.0.0.1:11434/v1` tramite l'API OpenAI-compatible di Ollama.
 
-<p align="center">
-  I share Leon progress most regularly on <a href="https://x.com/grenlouis"><strong>X / @grenlouis</strong></a>
-</p>
+Configurazione prevista:
 
-<p align="center">
-  <a href="https://x.com/grenlouis">Follow progress on X / @grenlouis</a> ·
-  <a href="https://getleon.ai">Website</a> ·
-  <a href="https://leonai.substack.com/subscribe">Newsletter</a> ·
-  <a href="http://roadmap.getleon.ai">Roadmap</a> ·
-  <a href="https://blog.getleon.ai/the-story-behind-leon/">Story</a>
-</p>
+```yaml
+language: it-IT
+llm:
+  default: ollama/qwen3.5:9b
+  workflow: null
+  agent: ollama/qwen3.5:9b
+```
+
+## Provenienza e licenza
+
+Questa repository deriva da **Leon 2.0**. Il codice originale resta soggetto alla licenza MIT e agli avvisi presenti in `LICENSE.md`. La provenienza della copia iniziale è registrata in `LEON_UPSTREAM.md`.
+
+> Nota tecnica: diversi nomi interni contengono ancora `Leon` per mantenere compatibilità con l'upstream. L'identità utente e le nuove integrazioni GE360 vengono sviluppate come JARVIS.
 
 ---
 
-## ⚠️ Important Notice (as of 2026-03-29)
+## Documentazione tecnica upstream / Leon 2.0 (as of 2026-03-29)
 
 > [!IMPORTANT]
 > Leon is currently focused on the **2.0 Developer Preview** on the `develop` branch.
