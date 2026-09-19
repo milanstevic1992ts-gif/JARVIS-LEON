@@ -106,6 +106,12 @@ const DEFAULT_CONFIG: LeonConfig = {
           env: 'LEON_SGLANG_API_KEY'
         }
       },
+      ollama: {
+        base_url: 'http://127.0.0.1:11434/v1',
+        api_key: {
+          env: 'JARVIS_OLLAMA_API_KEY'
+        }
+      },
       openrouter: {
         api_key: {
           env: 'LEON_OPENROUTER_API_KEY'
@@ -440,6 +446,8 @@ class ConfigManager {
       config.llm.providers['llamacpp']?.base_url || ''
     process.env['LEON_SGLANG_BASE_URL'] =
       config.llm.providers['sglang']?.base_url || ''
+    process.env['JARVIS_OLLAMA_BASE_URL'] =
+      config.llm.providers['ollama']?.base_url || ''
   }
 }
 
