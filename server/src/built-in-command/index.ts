@@ -1,6 +1,7 @@
 import { BuiltInCommandManager } from '@/built-in-command/built-in-command-manager'
 import { DownloadCommand } from '@/built-in-command/commands/download-command/download-command'
 import { HelpCommand } from '@/built-in-command/commands/help-command/help-command'
+import { JarvisCommand } from '@/built-in-command/commands/jarvis-command/jarvis-command'
 import { ModelCommand } from '@/built-in-command/commands/model-command/model-command'
 import { MoodCommand } from '@/built-in-command/commands/mood-command/mood-command'
 import { OpenCommand } from '@/built-in-command/commands/open-command/open-command'
@@ -26,7 +27,8 @@ const WHITELISTED_BUILT_IN_COMMAND_NAMES = [
   'skill',
   'stop',
   'tool',
-  'voice'
+  'voice',
+  'jarvis'
 ]
 
 const BUILT_IN_COMMANDS = [
@@ -42,6 +44,7 @@ const BUILT_IN_COMMANDS = [
   new StopCommand(),
   new ToolCommand(),
   new VoiceCommand(),
+  new JarvisCommand(),
   new HelpCommand()
 ]
   .filter((command) =>
