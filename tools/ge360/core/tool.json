@@ -4,7 +4,7 @@
   "toolkit_id": "ge360",
   "name": "GE360 Core",
   "description": "Discover, inspect and call the local GE360 HTTP API with guarded write access and no arbitrary remote URL support.",
-  "progressive_guidance": "Start with discoverLocalService or diagnose when the GE360 address is unknown. Use getOpenAPI before guessing endpoint paths. GET requests are allowed by default. POST, PUT and PATCH require allow_write_actions=true in settings. DELETE is intentionally blocked in this phase.",
+  "progressive_guidance": "Use discoverLocalService/diagnose when the address is unknown. Prefer discoverResources, listResource and getResource over guessing paths. GET is VERDE. POST/PUT/PATCH are GIALLA unless promoted to ROSSA by action semantics. DELETE and send/publish/campaign/payment-like operations are ROSSA. Never bypass owner approval with shell, curl, browser automation or direct database writes.",
   "icon_name": "server-line",
   "author": {
     "name": "GE360 JARVIS",
@@ -39,7 +39,7 @@
       }
     },
     "request": {
-      "description": "Call a relative GE360 API path. Read methods are allowed by default; guarded write methods require an explicit setting.",
+      "description": "Call a relative GE360 API path under the JARVIS safety policy. GET is automatic; write operations may require one-time owner approval.",
       "deduplicate_calls": false,
       "parameters": {
         "type": "object",
@@ -53,12 +53,22 @@
             "properties": {
               "method": {
                 "type": "string",
-                "enum": ["GET", "POST", "PUT", "PATCH"]
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "PATCH",
+                  "DELETE"
+                ]
               },
               "query": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 }
               },
               "body": {
@@ -68,7 +78,84 @@
             "additionalProperties": false
           }
         },
-        "required": ["path"],
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "discoverResources": {
+      "description": "Discover real GE360 collection/detail endpoints for known modules from the backend OpenAPI document.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "listResource": {
+      "description": "List a known GE360 resource using the best matching real GET collection endpoint discovered from OpenAPI.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "enum": [
+              "cantieri",
+              "clienti",
+              "preventivi",
+              "spese",
+              "materiali",
+              "attrezzi",
+              "furgone",
+              "marketing"
+            ]
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          }
+        },
+        "required": [
+          "resource"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "getResource": {
+      "description": "Get one known GE360 resource by id using the best matching real GET detail endpoint discovered from OpenAPI.",
+      "deduplicate_calls": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "enum": [
+              "cantieri",
+              "clienti",
+              "preventivi",
+              "spese",
+              "materiali",
+              "attrezzi",
+              "furgone",
+              "marketing"
+            ]
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource",
+          "id"
+        ],
         "additionalProperties": false
       }
     }
