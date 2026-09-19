@@ -1,0 +1,58 @@
+name: Import Leon upstream
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-leon:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore: bootstrap Leon upstream') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout JARVIS-LEON
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone Leon develop
+        run: |
+          git clone --depth 1 --branch develop https://github.com/leon-ai/leon.git /tmp/leon
+          echo "LEON_SHA=$(git -C /tmp/leon rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Import Leon source
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/workflows/' \
+            --exclude='.github/workflows' \
+            /tmp/leon/ ./
+
+          mkdir -p .github/workflows
+          cat > LEON_UPSTREAM.md <<EOF
+          # Leon upstream provenance
+
+          This repository was bootstrapped from:
+          - Upstream: https://github.com/leon-ai/leon
+          - Branch: develop
+          - Commit: ${LEON_SHA}
+
+          The original Leon license and notices remain in the imported source.
+          GE360/JARVIS-specific changes should be maintained separately and documented.
+          EOF
+
+      - name: Commit imported source
+        run: |
+          git config user.name "GE360 Jarvis Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to import."
+            exit 0
+          fi
+          git commit -m "chore: import Leon develop into JARVIS-LEON"
+          git push origin main
