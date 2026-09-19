@@ -104,6 +104,16 @@ function getOptionalLLMTarget(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function isJarvisOllamaConfigured() {
+  const llmConfig = CONFIG_MANAGER.getConfig().llm
+  const targets = [llmConfig.default, llmConfig.workflow, llmConfig.agent]
+    .filter((value) => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  return targets.some((target) => target.startsWith('ollama/'))
+}
+
 async function resolveExistingLLMChoice() {
   const llmConfig = CONFIG_MANAGER.getConfig().llm
   const leonLLM = getOptionalLLMTarget(llmConfig.default)
@@ -339,7 +349,11 @@ async function syncLLMSetupChoice(preferences) {
       // Install local AI components based on the earlier capability check and answers.
       SetupUI.section('Local AI')
 
-      if (preferences.setupLocalAI) {
+      if (isJarvisOllamaConfigured()) {
+        SetupUI.info(
+          'JARVIS is configured to use Ollama, so I will not download a second llama.cpp model.'
+        )
+      } else if (preferences.setupLocalAI) {
         currentStep = 'setupCMake'
         await setupCMake()
         currentStep = 'setupNinja'
