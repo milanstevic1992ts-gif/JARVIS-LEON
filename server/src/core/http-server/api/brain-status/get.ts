@@ -16,7 +16,20 @@ import { LogHelper } from '@/helpers/log-helper'
 
 const GIB = 1_024 * 1_024 * 1_024
 const OLLAMA_URL = 'http://127.0.0.1:11434'
-const REQUEST_TIMEOUT_MS = 1_500
+const REQUEST_TIMEOUT_MS = 1_200
+const HARDWARE_CACHE_TTL_MS = 10_000
+const SERVICES_CACHE_TTL_MS = 5_000
+
+let hardwareCache:
+  | { expiresAt: number, data: Record<string, unknown> }
+  | null = null
+let servicesCache:
+  | {
+      expiresAt: number
+      ollama: Record<string, unknown>
+      ge360: Record<string, unknown>
+    }
+  | null = null
 
 interface FetchJSONResult {
   ok: boolean
@@ -104,6 +117,44 @@ async function getOllamaStatus(): Promise<Record<string, unknown>> {
   }
 }
 
+async function probeGE360Candidate(
+  baseURL: string
+): Promise<Record<string, unknown> | null> {
+  const openAPI = await fetchJSON(`${baseURL}/openapi.json`)
+  if (openAPI.ok) {
+    const info =
+      openAPI.data?.['info'] &&
+      typeof openAPI.data['info'] === 'object' &&
+      !Array.isArray(openAPI.data['info'])
+        ? (openAPI.data['info'] as Record<string, unknown>)
+        : {}
+
+    return {
+      online: true,
+      base_url: baseURL,
+      title: typeof info['title'] === 'string' ? info['title'] : null,
+      openapi: true
+    }
+  }
+
+  const healthPaths = ['/health', '/api/health', '/healthz']
+  const healthResults = await Promise.all(
+    healthPaths.map((path) => fetchJSON(`${baseURL}${path}`))
+  )
+  const healthIndex = healthResults.findIndex((result) => result.ok)
+
+  if (healthIndex >= 0) {
+    return {
+      online: true,
+      base_url: baseURL,
+      health_path: healthPaths[healthIndex],
+      openapi: false
+    }
+  }
+
+  return null
+}
+
 async function getGE360Status(): Promise<Record<string, unknown>> {
   const candidates = [
     process.env['GE360_BASE_URL'] || '',
@@ -115,41 +166,84 @@ async function getGE360Status(): Promise<Record<string, unknown>> {
     .map((value) => value.trim().replace(/\/+$/, ''))
     .filter(Boolean)
 
-  for (const baseURL of [...new Set(candidates)]) {
-    const openAPI = await fetchJSON(`${baseURL}/openapi.json`)
-    if (openAPI.ok) {
-      const info =
-        openAPI.data?.['info'] &&
-        typeof openAPI.data['info'] === 'object' &&
-        !Array.isArray(openAPI.data['info'])
-          ? (openAPI.data['info'] as Record<string, unknown>)
-          : {}
+  const uniqueCandidates = [...new Set(candidates)]
+  const results = await Promise.all(
+    uniqueCandidates.map((baseURL) => probeGE360Candidate(baseURL))
+  )
+  const firstOnline = results.find(Boolean)
 
-      return {
-        online: true,
-        base_url: baseURL,
-        title: typeof info['title'] === 'string' ? info['title'] : null,
-        openapi: true
-      }
+  return (
+    firstOnline || {
+      online: false,
+      base_url: process.env['GE360_BASE_URL'] || null
     }
+  )
+}
 
-    for (const path of ['/health', '/api/health', '/healthz']) {
-      const health = await fetchJSON(`${baseURL}${path}`)
-      if (health.ok) {
-        return {
-          online: true,
-          base_url: baseURL,
-          health_path: path,
-          openapi: false
-        }
-      }
+async function getHardwareStatus(): Promise<Record<string, unknown>> {
+  const now = Date.now()
+  if (hardwareCache && hardwareCache.expiresAt > now) {
+    return hardwareCache.data
+  }
+
+  const [
+    gpuDeviceNames,
+    graphicsComputeAPI,
+    totalVRAM,
+    freeVRAM,
+    usedVRAM
+  ] = await Promise.all([
+    SystemHelper.getGPUDeviceNames(),
+    SystemHelper.getGraphicsComputeAPI(),
+    SystemHelper.getTotalVRAM(),
+    SystemHelper.getFreeVRAM(),
+    SystemHelper.getUsedVRAM()
+  ])
+
+  const data = {
+    name: gpuDeviceNames[0] || null,
+    compute_api: graphicsComputeAPI,
+    total_vram_gb: totalVRAM,
+    used_vram_gb: usedVRAM,
+    free_vram_gb: freeVRAM,
+    used_percent:
+      totalVRAM > 0
+        ? Number(((usedVRAM / totalVRAM) * 100).toFixed(1))
+        : 0
+  }
+
+  hardwareCache = {
+    expiresAt: now + HARDWARE_CACHE_TTL_MS,
+    data
+  }
+
+  return data
+}
+
+async function getServiceStatus(): Promise<{
+  ollama: Record<string, unknown>
+  ge360: Record<string, unknown>
+}> {
+  const now = Date.now()
+  if (servicesCache && servicesCache.expiresAt > now) {
+    return {
+      ollama: servicesCache.ollama,
+      ge360: servicesCache.ge360
     }
   }
 
-  return {
-    online: false,
-    base_url: process.env['GE360_BASE_URL'] || null
+  const [ollama, ge360] = await Promise.all([
+    getOllamaStatus(),
+    getGE360Status()
+  ])
+
+  servicesCache = {
+    expiresAt: now + SERVICES_CACHE_TTL_MS,
+    ollama,
+    ge360
   }
+
+  return { ollama, ge360 }
 }
 
 function getCpuSnapshot(): Record<string, unknown> {
@@ -248,23 +342,9 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
       )
       const policy = getJarvisPolicyManager()
 
-      const [
-        gpuDeviceNames,
-        graphicsComputeAPI,
-        totalVRAM,
-        freeVRAM,
-        usedVRAM,
-        ollama,
-        ge360,
-        latestTrace
-      ] = await Promise.all([
-        SystemHelper.getGPUDeviceNames(),
-        SystemHelper.getGraphicsComputeAPI(),
-        SystemHelper.getTotalVRAM(),
-        SystemHelper.getFreeVRAM(),
-        SystemHelper.getUsedVRAM(),
-        getOllamaStatus(),
-        getGE360Status(),
+      const [gpu, services, latestTrace] = await Promise.all([
+        getHardwareStatus(),
+        getServiceStatus(),
         getLatestAgentTrace()
       ])
 
@@ -304,19 +384,9 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
         },
         cpu: getCpuSnapshot(),
         memory: getMemorySnapshot(),
-        gpu: {
-          name: gpuDeviceNames[0] || null,
-          compute_api: graphicsComputeAPI,
-          total_vram_gb: totalVRAM,
-          used_vram_gb: usedVRAM,
-          free_vram_gb: freeVRAM,
-          used_percent:
-            totalVRAM > 0
-              ? Number(((usedVRAM / totalVRAM) * 100).toFixed(1))
-              : 0
-        },
-        ollama,
-        ge360,
+        gpu,
+        ollama: services.ollama,
+        ge360: services.ge360,
         safety: {
           policy: policy.getPolicySummary(),
           pending: policy.listPending().slice(0, 12),
