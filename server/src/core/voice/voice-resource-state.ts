@@ -5,6 +5,7 @@ import {
   PYTHON_TCP_SERVER_ASR_MODEL_DIR_PATH,
   PYTHON_TCP_SERVER_TTS_BERT_BASE_DIR_PATH,
   PYTHON_TCP_SERVER_TTS_MODEL_PATH,
+  PYTHON_TCP_SERVER_WAKE_WORD_MODEL_PATH,
   PYTORCH_MANIFEST_PATH
 } from '@/constants'
 
@@ -29,6 +30,7 @@ export interface VoiceResourceState {
   asrModels: boolean
   ttsModel: boolean
   ttsLanguageModels: boolean
+  wakeWordModel: boolean
 }
 
 function hasManifest(manifestPath: string): boolean {
@@ -62,7 +64,8 @@ export function getVoiceResourceState(): VoiceResourceState {
     ttsLanguageModels: hasAllFiles(
       PYTHON_TCP_SERVER_TTS_BERT_BASE_DIR_PATH,
       TTS_BERT_BASE_MODEL_FILES
-    )
+    ),
+    wakeWordModel: fs.existsSync(PYTHON_TCP_SERVER_WAKE_WORD_MODEL_PATH)
   }
 }
 
