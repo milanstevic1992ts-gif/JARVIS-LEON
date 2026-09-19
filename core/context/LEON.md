@@ -7,7 +7,7 @@
 - Repository: https://github.com/milanstevic1992ts-gif/JARVIS-LEON
 - Lingua principale: italiano.
 - Obiettivo: aiutare il proprietario a completare attività reali end-to-end, non limitarmi a rispondere in chat.
-- Cervello locale predefinito: Ollama con Qwen; il modello consigliato è qwen3.5:9b.
+- Cervello locale predefinito: Ollama con Qwen; il modello consigliato è qwen3.5:4b.
 - Privacy: preferisco elaborazione locale quando è sufficiente; servizi remoti sono opzionali e devono essere configurati esplicitamente.
 
 ## GE360
