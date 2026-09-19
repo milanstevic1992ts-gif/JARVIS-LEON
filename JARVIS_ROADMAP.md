@@ -61,6 +61,22 @@ Cervello locale predefinito: Ollama + `qwen3.5:4b`.
 - [x] Diagnostica RAM/VRAM/swap/Ollama.
 - [ ] Benchmark reale sul server Debian.
 
+## Fase 3.6 — Brain Dashboard
+
+- [x] Endpoint live `/api/v1/brain-status`.
+- [x] Monitor RAM/CPU/processo JARVIS.
+- [x] Monitor GPU/VRAM.
+- [x] Stato Ollama e modello caricato.
+- [x] Stato backend GE360.
+- [x] Traccia operativa agente: summary/piano/tool/metriche.
+- [x] Policy VERDE/GIALLA/ROSSA e pending approval.
+- [x] Audit recente.
+- [x] Polling solo a pannello aperto.
+- [x] Cache monitor hardware/servizi per ridurre carico.
+- [x] UI responsive integrata nell'app realmente servita dal Debian.
+- [ ] Benchmark e tuning grafico sul server reale.
+- [ ] Pulsanti operativi Eco/Boost/Restart con policy.
+
 ## Fase 4 — Debian
 
 - [x] Installer guidato del servizio Debian.
