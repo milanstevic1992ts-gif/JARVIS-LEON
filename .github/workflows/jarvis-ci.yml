@@ -96,12 +96,18 @@ jobs:
           bash -n deploy/debian/jarvis-benchmark.sh
           bash -n deploy/debian/enable-brain-service-control.sh
           bash -n deploy/debian/disable-brain-service-control.sh
+          bash -n deploy/debian/install-jarvis-linux.sh
+          bash -n install.sh
           grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
           grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
           grep -Fq 'Environment=PATH=__JARVIS_PATH__' deploy/debian/ge360-jarvis.service
           grep -Fq 'JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192' deploy/debian/ge360-jarvis.service
           grep -Fq 'OLLAMA_MAX_LOADED_MODELS=1' deploy/debian/ollama-low-resource.conf
           grep -Fq 'OLLAMA_KV_CACHE_TYPE=q8_0' deploy/debian/ollama-low-resource.conf
+          grep -Fq 'pnpm install --frozen-lockfile' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'pnpm run jarvis:low-resource' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'pnpm run jarvis:prepare-ai' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'systemctl restart ge360-jarvis.service' deploy/debian/install-jarvis-linux.sh
 
       - name: Build production app with Brain Dashboard
         run: |
