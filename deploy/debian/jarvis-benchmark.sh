@@ -59,7 +59,8 @@ print(f"Prompt tokens:    {prompt_count}")
 print(f"Prompt speed:     {prompt_tps:.1f} tok/s")
 print(f"Generated tokens: {eval_count}")
 print(f"Generation speed: {eval_tps:.1f} tok/s")
-print(f"Response:         {data.get(chr(114)+chr(101)+chr(115)+chr(112)+chr(111)+chr(110)+chr(115)+chr(101), str()).strip()}")
+response_text = str(data.get("response", "")).strip()
+print(f"Response:         {response_text}")
 ' "${START}" "${END}"
 
 echo
