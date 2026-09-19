@@ -6,7 +6,7 @@ import {
   type BuiltInCommandExecutionResult
 } from '@/built-in-command/built-in-command'
 import { createListResult } from '@/built-in-command/built-in-command-renderer'
-import { JARVIS_POLICY } from '@/core/jarvis-policy/jarvis-policy-manager'
+import { getJarvisPolicyManager } from '@/core/jarvis-policy/jarvis-policy-manager'
 
 const SUBCOMMANDS = ['policy', 'pending', 'approve', 'deny', 'audit'] as const
 
@@ -52,7 +52,7 @@ export class JarvisCommand extends BuiltInCommand {
     const subcommand = context.args[0]?.toLowerCase() || 'policy'
 
     if (subcommand === 'policy') {
-      const policy = JARVIS_POLICY.getPolicySummary()
+      const policy = getJarvisPolicyManager().getPolicySummary()
       return {
         status: 'completed',
         result: createListResult({
@@ -72,7 +72,7 @@ export class JarvisCommand extends BuiltInCommand {
     }
 
     if (subcommand === 'pending') {
-      const pending = JARVIS_POLICY.listPending()
+      const pending = getJarvisPolicyManager().listPending()
       return {
         status: 'completed',
         result: createListResult({
@@ -107,8 +107,8 @@ export class JarvisCommand extends BuiltInCommand {
 
       const record =
         subcommand === 'approve'
-          ? JARVIS_POLICY.approve(id)
-          : JARVIS_POLICY.deny(id)
+          ? getJarvisPolicyManager().approve(id)
+          : getJarvisPolicyManager().deny(id)
 
       if (!record) {
         return {
@@ -150,7 +150,7 @@ export class JarvisCommand extends BuiltInCommand {
     }
 
     if (subcommand === 'audit') {
-      const entries = JARVIS_POLICY.listRecentAudit(12)
+      const entries = getJarvisPolicyManager().listRecentAudit(12)
       return {
         status: 'completed',
         result: createListResult({
