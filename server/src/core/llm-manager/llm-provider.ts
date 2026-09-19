@@ -72,12 +72,14 @@ interface Provider {
 }
 const LOCAL_SERVER_PROVIDERS = new Set<LLMProviders>([
   LLMProviders.LlamaCPP,
-  LLMProviders.SGLang
+  LLMProviders.SGLang,
+  LLMProviders.Ollama
 ])
 
 const LLM_PROVIDERS_MAP = {
   [LLMProviders.LlamaCPP]: 'llamacpp-llm-provider',
   [LLMProviders.SGLang]: 'sglang-llm-provider',
+  [LLMProviders.Ollama]: 'ollama-llm-provider',
   [LLMProviders.Groq]: 'groq-llm-provider',
   [LLMProviders.OpenRouter]: 'openrouter-llm-provider',
   [LLMProviders.ZAI]: 'z-ai-llm-provider',
