@@ -66,7 +66,9 @@ jobs:
             server/src/constants.ts \
             tools/ge360/core/src/nodejs/ge360-tool.ts \
             tools/ge360/core/src/nodejs/ge360-resource-resolver.ts \
-            tools/ge360/core/src/nodejs/index.ts
+            tools/ge360/core/src/nodejs/index.ts \
+            tools/jarvis/brain/src/nodejs/jarvis-brain-tool.ts \
+            tools/jarvis/brain/src/nodejs/index.ts
 
       - name: Test JARVIS core
         run: pnpm exec vitest run --config vitest.config.ts test/jarvis/unit
@@ -160,9 +162,16 @@ jobs:
           if (c.mood.mode !== 'default') throw new Error('auto weather mood must default off')
           const toolkit = JSON.parse(fs.readFileSync('tools/ge360/toolkit.json', 'utf8'))
           const tool = JSON.parse(fs.readFileSync('tools/ge360/core/tool.json', 'utf8'))
+          const brainToolkit = JSON.parse(fs.readFileSync('tools/jarvis/toolkit.json', 'utf8'))
+          const brainTool = JSON.parse(fs.readFileSync('tools/jarvis/brain/tool.json', 'utf8'))
           const settings = JSON.parse(fs.readFileSync('tools/ge360/core/settings.sample.json', 'utf8'))
           if (toolkit.name !== 'GE360' || !toolkit.tools.includes('core')) throw new Error('GE360 toolkit')
           if (tool.toolkit_id !== 'ge360' || tool.tool_id !== 'core') throw new Error('GE360 tool')
+          if (brainToolkit.name !== 'JARVIS Brain' || !brainToolkit.tools.includes('brain')) throw new Error('JARVIS Brain toolkit')
+          if (brainTool.toolkit_id !== 'jarvis' || brainTool.tool_id !== 'brain') throw new Error('JARVIS Brain tool')
+          for (const fn of ['getStatus', 'benchmark', 'setMode', 'setModel', 'unloadModel']) {
+            if (!brainTool.functions[fn]) throw new Error('missing JARVIS Brain function: ' + fn)
+          }
           if (settings.writes_enabled !== true) throw new Error('GE360 master write gate must be enabled for approval flow')
           if (settings.yellow_auto_approve !== false) throw new Error('yellow actions must require approval by default')
           for (const fn of ['discoverResources', 'listResource', 'getResource', 'request']) {
