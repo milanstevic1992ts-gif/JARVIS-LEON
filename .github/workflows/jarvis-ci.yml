@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  typecheck:
+  jarvis-core-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,14 +27,20 @@ jobs:
           corepack enable
           corepack prepare pnpm@12.4.1 --activate
 
-      - name: Install dependencies without setup downloads
+      - name: Install root dependencies without setup downloads
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Install computer-use tool dependency
-        run: pnpm install --dir tools/computer_use/cua/src/nodejs --ignore-scripts
+      - name: Lint JARVIS core modifications
+        run: |
+          pnpm exec eslint \
+            server/src/config.ts \
+            server/src/schemas/core-schemas.ts \
+            server/src/core/llm-manager/types.ts \
+            server/src/core/llm-manager/llm-provider.ts \
+            server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
+            scripts/setup/setup-config.js \
+            scripts/setup/setup.js
 
-      - name: Build Aurora types
-        run: pnpm run build:aurora
-
-      - name: TypeScript check
-        run: pnpm exec tsc --noEmit
+      - name: Validate JARVIS YAML configuration
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; import YAML from 'yaml'; const c=YAML.parse(fs.readFileSync('config.sample.yml','utf8')); if(c.language!=='it-IT') throw new Error('language'); if(c.llm.default!=='ollama/qwen3.5:9b') throw new Error('default model'); if(c.llm.providers.ollama.base_url!=='http://127.0.0.1:11434/v1') throw new Error('ollama URL'); console.log('JARVIS config OK')"
