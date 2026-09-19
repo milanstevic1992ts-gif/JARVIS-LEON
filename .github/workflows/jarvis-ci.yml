@@ -104,6 +104,9 @@ jobs:
           grep -Fq 'JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192' deploy/debian/ge360-jarvis.service
           grep -Fq 'OLLAMA_MAX_LOADED_MODELS=1' deploy/debian/ollama-low-resource.conf
           grep -Fq 'OLLAMA_KV_CACHE_TYPE=q8_0' deploy/debian/ollama-low-resource.conf
+          grep -Fq 'LEON_PYTHON_PATH' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'LEON_UV_PATH' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'https://astral.sh/uv/install.sh' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'pnpm install --frozen-lockfile' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'pnpm run jarvis:low-resource' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'pnpm run jarvis:prepare-ai' deploy/debian/install-jarvis-linux.sh
