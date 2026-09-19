@@ -14,11 +14,11 @@ export function Logo({
   src,
   width,
   height,
-  alt = 'Leon',
+  alt = 'JARVIS',
   to = '/'
 }: LogoProps) {
   return (
-    <Link className="logo" to={to} aria-label="Leon home">
+    <Link className="logo" to={to} aria-label="JARVIS home">
       <img src={src} width={width} height={height} alt={alt} />
     </Link>
   )
