@@ -20,7 +20,7 @@ type LLMProviderConfig = LLMProviderConfigSchema
 type OptionalStringConfigValue = LeonConfig['llm']['default']
 
 const DEFAULT_CONFIG: LeonConfig = {
-  language: 'en-US',
+  language: 'it-IT',
   server: {
     host: 'http://localhost',
     port: 5_366
@@ -89,9 +89,9 @@ const DEFAULT_CONFIG: LeonConfig = {
     port: 5_367
   },
   llm: {
-    default: null,
+    default: 'ollama/qwen3.5:9b',
     workflow: null,
-    agent: null,
+    agent: 'ollama/qwen3.5:9b',
     model_settings: {},
     providers: {
       llamacpp: {
