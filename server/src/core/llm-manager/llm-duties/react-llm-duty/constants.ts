@@ -31,7 +31,26 @@ Distinguish successful tool execution from verified task completion. Preserve un
 If a previous continuation summary is present, update it with the newer evidence rather than nesting or discarding it.
 Keep the handoff concise, normally under 1,000 words. Omit irrelevant tool output, not facts needed to finish.
 Do not ask for permission to continue an already authorized task. Never invent success or a deliverable.`
-export const AGENT_MAX_PARALLEL_TOOL_CALLS = 8
+function readBoundedIntEnv(
+  name: string,
+  fallback: number,
+  minimum: number,
+  maximum: number
+): number {
+  const raw = process.env[name]?.trim()
+  const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN
+
+  return Number.isFinite(parsed)
+    ? Math.min(Math.max(parsed, minimum), maximum)
+    : fallback
+}
+
+export const AGENT_MAX_PARALLEL_TOOL_CALLS = readBoundedIntEnv(
+  'JARVIS_AGENT_MAX_PARALLEL_TOOL_CALLS',
+  2,
+  1,
+  8
+)
 export const AGENT_TOOL_CALL_TITLE_ARGUMENT_NAME = '_leonToolCallTitle'
 export const AGENT_TOOL_CALL_TITLE_MAX_CHARS = 72
 export const AGENT_TEMPERATURE = 0.2
@@ -45,7 +64,7 @@ export const AGENT_REMOTE_CONTEXT_COMPACTION_TRIGGER_TOKENS = 96_000
 export const AGENT_REMOTE_CONTEXT_RECOVERY_TRIGGER_TOKENS = 64_000
 export const AGENT_TOOL_OBSERVATION_MAX_CHARS = 6_000
 export const AGENT_RECENT_TOOLKIT_SCHEMA_LIMIT = 1
-export const AGENT_RECENT_COMPUTER_USE_IMAGE_LIMIT = 2
+export const AGENT_RECENT_COMPUTER_USE_IMAGE_LIMIT = 1
 export const AGENT_COMPUTER_USE_RECENT_ACTION_LIMIT = 8
 export const AGENT_COMPUTER_USE_SCROLL_REVERSAL_THRESHOLD = 2
 export const AGENT_COMPUTER_USE_UNVERIFIED_ACTION_THRESHOLD = 3
@@ -58,7 +77,7 @@ export const AGENT_TOOL_CALL_DIAGNOSIS_RETRY_DELAY_MS = 10_000
 
 export const AGENT_HISTORY_COMPACTION_MAX_TOKENS = 512
 export const AGENT_HISTORY_COMPACTION_RETRY_MAX_TOKENS = 1_024
-export const AGENT_LOCAL_PROVIDER_HISTORY_LOGS = 24
-export const AGENT_LOCAL_PROVIDER_HISTORY_COMPACTION_POINT = 18
+export const AGENT_LOCAL_PROVIDER_HISTORY_LOGS = 16
+export const AGENT_LOCAL_PROVIDER_HISTORY_COMPACTION_POINT = 10
 export const AGENT_REMOTE_PROVIDER_HISTORY_LOGS = 48
 export const AGENT_REMOTE_PROVIDER_HISTORY_COMPACTION_POINT = 36
