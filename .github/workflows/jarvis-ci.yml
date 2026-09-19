@@ -97,6 +97,7 @@ jobs:
           bash -n deploy/debian/enable-brain-service-control.sh
           bash -n deploy/debian/disable-brain-service-control.sh
           bash -n deploy/debian/install-jarvis-linux.sh
+          bash -n deploy/debian/run-jarvis-service.sh
           bash -n install.sh
           grep -Fq 'User=__JARVIS_USER__' deploy/debian/ge360-jarvis.service
           grep -Fq 'ExecStart=__PNPM_BIN__ start' deploy/debian/ge360-jarvis.service
@@ -111,6 +112,10 @@ jobs:
           grep -Fq 'pnpm run jarvis:low-resource' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'pnpm run jarvis:prepare-ai' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'systemctl restart ge360-jarvis.service' deploy/debian/install-jarvis-linux.sh
+          grep -Fq 'JARVIS_NODE_BIN=__NODE_BIN__' deploy/debian/ge360-jarvis.service
+          grep -Fq 'run-jarvis-service.sh' deploy/debian/ge360-jarvis.service
+          grep -Fq 'server/dist/pre-check.js' deploy/debian/run-jarvis-service.sh
+          grep -Fq 'exec "${NODE_BIN}" server/dist/index.js' deploy/debian/run-jarvis-service.sh
 
       - name: Build production server TypeScript
         run: pnpm run build:server
