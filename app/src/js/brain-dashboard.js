@@ -484,6 +484,9 @@ export default class BrainDashboard {
     )
     button.type = 'button'
     button.disabled = this.controlBusy || Boolean(options.disabled)
+    if (options.title) {
+      button.title = options.title
+    }
     button.innerHTML =
       '<i class="ri-' + iconName + '-line" aria-hidden="true"></i>' +
       '<span>' + label + '</span>'
@@ -498,6 +501,9 @@ export default class BrainDashboard {
       ? data.ollama.installed_models
       : []
     const configuredModel = data.llm?.model || ''
+    const hasBoostModel = installedModels.some(
+      (name) => name === 'qwen3.5:9b' || name.startsWith('qwen3.5:9b-')
+    )
     const restartOllamaAvailable = data.controls?.restart_ollama === true
 
     const sectionLabel = (text) =>
@@ -525,7 +531,12 @@ export default class BrainDashboard {
           }),
           {
             active: currentMode === mode,
-            tone: mode === 'boost' ? 'boost' : mode
+            tone: mode === 'boost' ? 'boost' : mode,
+            disabled: mode === 'boost' && !hasBoostModel,
+            title:
+              mode === 'boost' && !hasBoostModel
+                ? 'Installa prima: ollama pull qwen3.5:9b'
+                : ''
           }
         )
       )
@@ -547,7 +558,11 @@ export default class BrainDashboard {
           {
             active: configuredModel === model,
             disabled: !installed,
-            tone: model.endsWith(':9b') ? 'boost' : 'normal'
+            tone: model.endsWith(':9b') ? 'boost' : 'normal',
+            title:
+              installed
+                ? ''
+                : 'Installa prima: ollama pull ' + model
           }
         )
       )
