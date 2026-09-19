@@ -87,3 +87,22 @@ export GE360_BASE_URL=http://127.0.0.1:PORTA
 ```
 
 Le policy VERDE/GIALLA/ROSSA restano attive indipendentemente dal profilo low-resource.
+
+
+## Brain Dashboard: Restart Ollama
+
+Per sicurezza il pulsante **Restart Ollama** è bloccato per default.
+
+Se vuoi abilitarlo, JARVIS non riceve sudo generale. Lo script seguente crea una regola sudoers limitata esclusivamente a `systemctl restart ollama.service` e abilita la relativa variabile nel servizio:
+
+```bash
+sudo bash deploy/debian/enable-brain-service-control.sh
+```
+
+Per revocare il permesso:
+
+```bash
+sudo bash deploy/debian/disable-brain-service-control.sh
+```
+
+Gli altri controlli Brain restano disponibili senza questo permesso.
