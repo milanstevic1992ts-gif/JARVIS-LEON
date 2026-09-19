@@ -43,6 +43,24 @@ export default class JarvisQuickChat {
   init() {
     this.buildGlobalChat()
     this.bindSocket()
+    this.client.onUIEvent?.('session-changed', () => {
+      void this.syncFromClientHistory()
+    })
+    void this.syncFromClientHistory()
+  }
+
+  async syncFromClientHistory() {
+    try {
+      const snapshot = await this.client.waitForChatReady?.()
+      if (!Array.isArray(snapshot)) return
+
+      this.messages = snapshot.slice(-32)
+      this.activeStreamId = null
+      this.activeStreamText = ''
+      this.renderFeeds()
+    } catch {
+      // The live socket chat still works even if history hydration fails.
+    }
   }
 
   buildGlobalChat() {
