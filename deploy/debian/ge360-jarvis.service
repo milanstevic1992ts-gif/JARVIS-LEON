@@ -13,12 +13,19 @@ WorkingDirectory=__JARVIS_DIR__
 Environment=HOME=__JARVIS_HOME__
 Environment=NODE_ENV=production
 Environment=LEON_NODE_ENV=production
+Environment=JARVIS_LOW_RESOURCE=1
+Environment=JARVIS_LOCAL_CONTEXT_WINDOW_TOKENS=8192
+Environment=JARVIS_AGENT_MAX_PARALLEL_TOOL_CALLS=2
+Environment=NODE_OPTIONS=--max-old-space-size=1536
 ExecStart=__PNPM_BIN__ start
 Restart=on-failure
 RestartSec=5
 TimeoutStartSec=180
 TimeoutStopSec=30
 KillSignal=SIGINT
+Nice=2
+TasksMax=256
+LimitNOFILE=4096
 
 # Basic hardening that remains compatible with local models and GE360.
 NoNewPrivileges=true
