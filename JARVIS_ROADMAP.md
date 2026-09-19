@@ -34,6 +34,7 @@ Cervello locale predefinito: Ollama + `qwen3.5:9b`.
 - [ ] Collegare Spese.
 - [ ] Collegare Materiali/Attrezzi/Furgone.
 - [ ] Collegare Marketing/Prospex.
+- [x] Resolver OpenAPI dinamico per Clienti/Cantieri/Preventivi/Spese/Materiali/Attrezzi/Furgone/Marketing.
 
 ## Fase 3 — Voce
 
@@ -57,8 +58,8 @@ Cervello locale predefinito: Ollama + `qwen3.5:9b`.
 
 ## Fase 5 — Autonomia controllata
 
-- [ ] Policy Verde: lettura, ricerca, analisi, diagnostica.
-- [ ] Policy Gialla: modifiche reversibili e bozze.
-- [ ] Policy Rossa: invii, cancellazioni e modifiche critiche con conferma.
-- [ ] Audit log unico GE360/JARVIS.
+- [x] Policy Verde: lettura, ricerca, analisi, diagnostica.
+- [x] Policy Gialla: modifiche reversibili con approvazione one-shot predefinita.
+- [x] Policy Rossa: invii, cancellazioni e modifiche critiche con approvazione one-shot obbligatoria.
+- [x] Audit log policy GE360/JARVIS con redazione segreti.
 - [ ] Rollback per operazioni supportate.
