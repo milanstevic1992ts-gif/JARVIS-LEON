@@ -35,7 +35,23 @@ export async function createCuaDriverAdapter(
     // fallback to every local X11 session because the X server is shared.
     process.env[CUA_X11_UINPUT_SAFETY_ENV] = 'true'
   }
-  const { CuaDriver, SessionPermissionMode } = await import('@trycua/cua-driver')
+  const driverModuleName = '@trycua/cua-driver'
+  let driverModule: Record<string, unknown>
+
+  try {
+    driverModule = await import(driverModuleName) as Record<string, unknown>
+  } catch {
+    throw new Error(
+      'Computer Use CUA driver is not installed on this host. JARVIS can run normally without it.'
+    )
+  }
+
+  const CuaDriver = driverModule['CuaDriver'] as {
+    createConfigured(options: Record<string, unknown>): unknown
+  }
+  const SessionPermissionMode = driverModule['SessionPermissionMode'] as {
+    Standard: unknown
+  }
   const options = {
     claudeCodeCompatibility: false,
     authorization: {
