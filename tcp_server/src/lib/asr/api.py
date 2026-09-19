@@ -1,4 +1,5 @@
 import audioop
+import os
 import time
 import torch
 import numpy as np
@@ -45,7 +46,7 @@ class ASR:
         self.is_recording = False
 
         """
-        Thottle the interrupt Leon's speech callback to avoid sending too many messages to the client
+        Throttle the interrupt assistant speech callback to avoid sending too many messages to the client
         """
         self.interrupt_leon_speech_callback = ThrottledCallback(
             interrupt_leon_speech_callback, 0.8
@@ -55,6 +56,11 @@ class ASR:
         self.active_listening_disabled_callback = active_listening_disabled_callback
 
         self.device = device
+        self.language = (
+            os.environ.get('LEON_PY_TCP_SERVER_LANG', 'it')
+            .split('-')[0]
+            .lower()
+        )
         self.is_voice_activity_detected = False
         self.silence_start_time = 0
         self.is_active_listening_enabled = False
@@ -150,10 +156,10 @@ class ASR:
                                 audio_data = audio_data.astype(np.float32) / 32768.0
                             transcribe_params = {
                                 'beam_size': 5,
-                                'language': 'en',
+                                'language': self.language,
                                 'task': 'transcribe',
                                 'condition_on_previous_text': False,
-                                'hotwords': 'talking to Leon'
+                                'hotwords': 'Jarvis JARVIS GE360'
                             }
                             if self.device == 'cpu':
                                 transcribe_params['temperature'] = 0
