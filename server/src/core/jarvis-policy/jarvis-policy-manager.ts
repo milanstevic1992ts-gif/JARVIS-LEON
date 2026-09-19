@@ -421,4 +421,6 @@ export class JarvisPolicyManager {
   }
 }
 
-export const JARVIS_POLICY = new JarvisPolicyManager()
+export function getJarvisPolicyManager(): JarvisPolicyManager {
+  return new JarvisPolicyManager()
+}
