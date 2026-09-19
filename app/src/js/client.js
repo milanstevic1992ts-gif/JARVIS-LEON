@@ -42,6 +42,7 @@ export default class Client {
     this._isVoiceModeEnabled = false
     this._hasSentInitMessages = false
     this._chatbotInitPromise = null
+    this.uiEvents = new EventTarget()
     // this._ttsAudioContextes = {}
   }
 
@@ -88,6 +89,52 @@ export default class Client {
     this.socket.emit('session-change', sessionId)
     await this.chatbot.loadFeed()
     this.chatbot.scrollDown({ force: true })
+    this.uiEvents.dispatchEvent(
+      new CustomEvent('session-changed', {
+        detail: { sessionId }
+      })
+    )
+  }
+
+  onUIEvent(name, listener) {
+    this.uiEvents.addEventListener(name, listener)
+  }
+
+  async waitForChatReady() {
+    await this._chatbotInitPromise
+    return this.getConversationSnapshot()
+  }
+
+  getConversationSnapshot() {
+    const bubbles = Array.isArray(this.chatbot?.parsedBubbles)
+      ? this.chatbot.parsedBubbles
+      : []
+
+    return bubbles
+      .filter((bubble) => {
+        const text =
+          bubble.originalString ||
+          bubble.string ||
+          ''
+        return (
+          typeof text === 'string' &&
+          text.trim() &&
+          !text.includes('"component":"WidgetWrapper"')
+        )
+      })
+      .slice(-32)
+      .map((bubble) => ({
+        role:
+          bubble.who === 'me' || bubble.who === 'owner'
+            ? 'owner'
+            : 'jarvis',
+        text: bubble.originalString || bubble.string,
+        sentAt:
+          typeof bubble.sentAt === 'number'
+            ? bubble.sentAt
+            : Date.now(),
+        metrics: bubble.llmMetrics || null
+      }))
   }
 
   async sendInitMessages() {
