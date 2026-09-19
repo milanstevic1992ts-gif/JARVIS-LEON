@@ -70,7 +70,7 @@ export default class Client {
       return
     }
 
-    moodContainer.textContent = `Leon's mood: ${mood.emoji}`
+    moodContainer.textContent = `JARVIS: ${mood.emoji}`
     moodContainer.setAttribute('title', mood.type)
   }
 
