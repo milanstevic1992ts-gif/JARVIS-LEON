@@ -75,13 +75,26 @@ async function fetchJSON(url: string): Promise<FetchJSONResult> {
 }
 
 async function getOllamaStatus(): Promise<Record<string, unknown>> {
-  const [version, ps] = await Promise.all([
+  const [version, ps, tags] = await Promise.all([
     fetchJSON(`${OLLAMA_URL}/api/version`),
-    fetchJSON(`${OLLAMA_URL}/api/ps`)
+    fetchJSON(`${OLLAMA_URL}/api/ps`),
+    fetchJSON(`${OLLAMA_URL}/api/tags`)
   ])
 
   const models = Array.isArray(ps.data?.['models'])
     ? (ps.data?.['models'] as Array<Record<string, unknown>>)
+    : []
+
+  const installedModels = Array.isArray(tags.data?.['models'])
+    ? (tags.data?.['models'] as Array<Record<string, unknown>>)
+        .map((model) =>
+          typeof model['name'] === 'string'
+            ? model['name']
+            : typeof model['model'] === 'string'
+              ? model['model']
+              : ''
+        )
+        .filter(Boolean)
     : []
 
   return {
@@ -90,6 +103,7 @@ async function getOllamaStatus(): Promise<Record<string, unknown>> {
       typeof version.data?.['version'] === 'string'
         ? version.data['version']
         : null,
+    installed_models: installedModels,
     loaded_models: models.map((model) => ({
       name:
         typeof model['name'] === 'string'
@@ -351,6 +365,14 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
       LogHelper.title('GET /brain-status')
       LogHelper.success('JARVIS brain status fetched.')
 
+      const configuredModel = modelState.getAgentModelName()
+      const performanceMode =
+        configuredModel === 'qwen3.5:9b'
+          ? 'boost'
+          : profileConfig.runtime.agent_max_iterations <= 32
+            ? 'eco'
+            : 'normal'
+
       return reply.send({
         success: true,
         status: 200,
@@ -372,7 +394,8 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
           private_diary_enabled:
             profileConfig.runtime.private_diary_enabled,
           agent_max_iterations:
-            profileConfig.runtime.agent_max_iterations || null
+            profileConfig.runtime.agent_max_iterations || null,
+          performance_mode: performanceMode
         },
         llm: {
           heading: llmDisplay.heading,
@@ -392,7 +415,14 @@ export const getBrainStatus: FastifyPluginAsync<APIOptions> = async (
           pending: policy.listPending().slice(0, 12),
           audit: policy.listRecentAudit(16)
         },
-        activity: latestTrace
+        activity: latestTrace,
+        controls: {
+          restart_jarvis: true,
+          restart_ollama:
+            process.env['JARVIS_ALLOW_SYSTEM_SERVICE_CONTROL'] === '1',
+          supported_modes: ['eco', 'normal', 'boost'],
+          supported_models: ['qwen3.5:4b', 'qwen3.5:9b']
+        }
       })
     }
   })
