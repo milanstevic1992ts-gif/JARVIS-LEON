@@ -48,7 +48,7 @@ const DEFAULT_CONFIG: LeonConfig = {
     mode: 'smart'
   },
   mood: {
-    mode: 'auto'
+    mode: 'default'
   },
   runtime: {
     agent_max_iterations: 64,
