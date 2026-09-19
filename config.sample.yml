@@ -3,7 +3,7 @@
 # This file stores non-secret profile settings. Keep actual secret values in
 # your profile .env file, then reference them here with an `env` property.
 
-language: en-US
+language: it-IT
 
 server:
   host: http://localhost
@@ -17,15 +17,17 @@ llm:
   # Use null to leave the global LLM target unset.
   # Set to "<provider>/<model>" to use a provider/model pair.
   # Examples:
+  # JARVIS default local brain (recommended): ollama/qwen3.5:9b
+  # default: ollama/qwen3.5:9b
   # default: openai/gpt-5.6-sol
   # default: openrouter/z-ai/glm-5.2
   # default: llamacpp/Qwen3.8-27B-Uncensored-Aggressive-Q4_K_M.gguf
   # default: sglang/Qwen3.8-27B-Uncensored-Aggressive-Q4_K_M.gguf
   # default: /absolute/path/model.gguf
-  default: null
+  default: ollama/qwen3.5:9b
   # Optional per-mode overrides. Null values fall back to llm.default.
   workflow: null
-  agent: null
+  agent: ollama/qwen3.5:9b
   # Persisted per-model overrides.
   model_settings: {}
   providers:
@@ -39,6 +41,12 @@ llm:
       api_key:
         # The value is read from LEON_SGLANG_API_KEY in your profile .env file.
         env: LEON_SGLANG_API_KEY
+    ollama:
+      # JARVIS local brain. Ollama exposes an OpenAI-compatible API here.
+      base_url: http://127.0.0.1:11434/v1
+      api_key:
+        # Ollama does not require a real key; this remains available for compatibility.
+        env: JARVIS_OLLAMA_API_KEY
     openrouter:
       api_key:
         # The value is read from LEON_OPENROUTER_API_KEY in your profile .env file.
