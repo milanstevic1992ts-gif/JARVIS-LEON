@@ -77,6 +77,10 @@ Cervello locale predefinito: Ollama + `qwen3.5:4b`.
 - [ ] Benchmark e tuning grafico sul server reale.
 - [x] Pulsanti operativi ECO/NORMAL/BOOST, 4B/9B, benchmark, unload e restart con policy.
 - [x] Restart Ollama opzionale con sudoers a privilegio minimo.
+- [x] Chat interna al Brain collegata alla sessione reale.
+- [x] Chat rapida globale disponibile in tutta l'interfaccia.
+- [x] Sincronizzazione chat rapida con cambio sessione.
+- [x] Streaming risposta e token/s nella mini-chat.
 - [ ] Test visuale e tuning sul Debian reale.
 
 ## Fase 4 — Debian
