@@ -4,6 +4,7 @@ import { LLMProviders } from '@/core/llm-manager/types'
 import { resolveConfiguredLLMTarget } from '@/core/llm-manager/llm-routing'
 import { LOCAL_LLM_CONTEXT_WINDOW_TOKENS, isLocalLLMProvider } from '@/core/llm-manager/model-context-windows'
 import { AGENT_MAX_PARALLEL_TOOL_CALLS } from '@/core/llm-manager/llm-duties/react-llm-duty/constants'
+import { transformOllamaRequestBody } from '@/core/llm-manager/llm-providers/ollama-llm-provider'
 
 const OPTIONS = {
   defaultInstalledLLMPath: '/models/default.gguf',
@@ -28,6 +29,27 @@ describe('JARVIS Ollama routing', () => {
     expect(isLocalLLMProvider(LLMProviders.Ollama)).toBe(true)
     expect(LOCAL_LLM_CONTEXT_WINDOW_TOKENS).toBe(8_192)
     expect(AGENT_MAX_PARALLEL_TOOL_CALLS).toBe(2)
+  })
+
+  it('disables thinking for Qwen3.5 Ollama requests', () => {
+    expect(
+      transformOllamaRequestBody('qwen3.5:4b', {
+        model: 'qwen3.5:4b',
+        messages: []
+      })
+    ).toMatchObject({
+      model: 'qwen3.5:4b',
+      think: false
+    })
+  })
+
+  it('does not inject think=false into unrelated Ollama models', () => {
+    const body = {
+      model: 'llama3.2:3b',
+      messages: []
+    }
+
+    expect(transformOllamaRequestBody('llama3.2:3b', body)).toBe(body)
   })
 
   it('requires an explicit model name for Ollama', () => {
