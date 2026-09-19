@@ -11,6 +11,7 @@ Type=simple
 User=__JARVIS_USER__
 WorkingDirectory=__JARVIS_DIR__
 Environment=HOME=__JARVIS_HOME__
+Environment=PATH=__JARVIS_PATH__
 Environment=NODE_ENV=production
 Environment=LEON_NODE_ENV=production
 Environment=JARVIS_LOW_RESOURCE=1
