@@ -45,11 +45,27 @@ jobs:
             server/src/core/context-manager/context-files/leon-context-file.ts \
             server/src/core/context-manager/context-files/leon-runtime-context-file.ts \
             server/src/built-in-command/commands/voice-command/voice-command.ts \
+            server/src/core/voice/voice-resource-state.ts \
+            server/src/constants.ts \
             tools/ge360/core/src/nodejs/ge360-tool.ts \
             tools/ge360/core/src/nodejs/index.ts
 
       - name: Test Ollama local routing
         run: pnpm exec vitest run --config vitest.config.ts test/jarvis/unit/ollama-routing.spec.ts
+
+      - name: Validate JARVIS voice Python
+        run: |
+          python3 -m py_compile tcp_server/src/lib/asr/api.py
+          python3 -m py_compile tcp_server/src/lib/tcp_server.py
+          python3 -m py_compile tcp_server/src/lib/wake_word/api.py
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs'
+          const settings = JSON.parse(fs.readFileSync('tcp_server/settings.json', 'utf8'))
+          if (settings.wake_word.model_file_name !== 'Hey_Jarvis.onnx') {
+            throw new Error('wake-word model must remain a dedicated Hey Jarvis model')
+          }
+          console.log('JARVIS voice settings OK')
+          NODE
 
       - name: Validate Debian deployment scripts
         run: |
