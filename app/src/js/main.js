@@ -8,6 +8,7 @@ import Client from './client'
 import { BuiltInCommands } from './built-in-commands'
 import FileSystemAutocomplete from './file-system-autocomplete'
 import SessionsPanel from './sessions'
+import BrainDashboard from './brain-dashboard'
 import { ensureProfileAuthentication } from './profile-auth'
 // import Recorder from './recorder'
 // import listener from './listener'
@@ -46,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       activeSessionId: sessionsResponse.data.active_session_id,
       initialPayload: sessionsResponse.data,
       onSelect: (sessionId) => client.setActiveSession(sessionId)
+    })
+    const brainDashboard = new BrainDashboard({
+      serverUrl,
+      socket: client.socket
     })
     const fileSystemAutocomplete = new FileSystemAutocomplete({
       serverUrl,
@@ -99,6 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     client.setSessionPanel(sessionsPanel)
     sessionsPanel.init()
     client.init()
+    brainDashboard.init()
     fileSystemAutocomplete.attach(input)
     builtInCommands.init()
 
