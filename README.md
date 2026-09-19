@@ -57,6 +57,16 @@ L'interfaccia di produzione include ora un pulsante **Brain**. Il pannello viene
 
 Il runtime espone i dati tramite `GET /api/v1/brain-status`. Le sonde hardware e servizi usano cache breve per non creare carico inutile sul Debian.
 
+### Chat JARVIS condivisa
+
+JARVIS dispone ora di tre superfici che usano lo stesso runtime e la stessa sessione:
+
+- chat principale;
+- chat integrata nella parte bassa del Brain Dashboard;
+- pulsante flottante **JARVIS Chat** disponibile nel resto dell'interfaccia.
+
+La mini-chat riceve streaming delle risposte, mostra lo stato di elaborazione, conserva un piccolo storico visuale e si riallinea automaticamente quando cambia la sessione attiva. Non avvia un secondo modello Ollama.
+
 ## Provenienza e licenza
 
 Questa repository deriva da **Leon 2.0**. Il codice originale resta soggetto alla licenza MIT e agli avvisi presenti in `LICENSE.md`. La provenienza della copia iniziale è registrata in `LEON_UPSTREAM.md`.
