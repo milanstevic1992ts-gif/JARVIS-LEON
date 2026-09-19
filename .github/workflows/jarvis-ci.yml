@@ -30,5 +30,11 @@ jobs:
       - name: Install dependencies without setup downloads
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Install computer-use tool dependency
+        run: pnpm install --dir tools/computer_use/cua/src/nodejs --ignore-scripts
+
+      - name: Build Aurora types
+        run: pnpm run build:aurora
+
       - name: TypeScript check
         run: pnpm exec tsc --noEmit
