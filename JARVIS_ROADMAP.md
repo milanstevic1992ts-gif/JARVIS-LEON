@@ -81,6 +81,8 @@ Cervello locale predefinito: Ollama + `qwen3.5:4b`.
 - [x] Chat rapida globale disponibile in tutta l'interfaccia.
 - [x] Sincronizzazione chat rapida con cambio sessione.
 - [x] Streaming risposta e token/s nella mini-chat.
+- [x] Tool naturale `jarvis.brain` per stato, benchmark, ECO/NORMAL/BOOST, 4B/9B e unload.
+- [x] Skill agente `jarvis-brain-operator` con policy one-shot.
 - [ ] Test visuale e tuning sul Debian reale.
 
 ## Fase 4 — Debian
