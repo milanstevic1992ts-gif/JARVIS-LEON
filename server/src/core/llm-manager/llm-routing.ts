@@ -24,6 +24,12 @@ interface LLMManifest {
 
 const LOCAL_PROVIDERS = new Set<LLMProviders>([
   LLMProviders.LlamaCPP,
+  LLMProviders.SGLang,
+  LLMProviders.Ollama
+])
+
+const LOCAL_MODEL_PATH_PROVIDERS = new Set<LLMProviders>([
+  LLMProviders.LlamaCPP,
   LLMProviders.SGLang
 ])
 
@@ -136,7 +142,7 @@ export function resolveConfiguredLLMTarget(
   if (separatorIndex === -1) {
     const provider = normalizeProvider(normalizedValue)
 
-    if (!LOCAL_PROVIDERS.has(provider)) {
+    if (!LOCAL_MODEL_PATH_PROVIDERS.has(provider)) {
       throw new Error(
         `The LLM target "${normalizedValue}" is missing its model identifier.`
       )
@@ -165,13 +171,17 @@ export function resolveConfiguredLLMTarget(
     )
   }
 
-  if (LOCAL_PROVIDERS.has(provider)) {
+  if (LOCAL_MODEL_PATH_PROVIDERS.has(provider)) {
     const localModelPath = resolveLocalModelPath(options.llmDirPath, model)
 
     return createResolvedLLMTarget(provider, localModelPath, true)
   }
 
-  return createResolvedLLMTarget(provider, model, false)
+  return createResolvedLLMTarget(
+    provider,
+    model,
+    LOCAL_PROVIDERS.has(provider)
+  )
 }
 
 export function getInstalledLLMMetadata(
