@@ -131,7 +131,7 @@ function emitAgentSkillActivityToWebApp(
     `agent_skill_${agentSkillContext.id}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
 
   SOCKET_SERVER.emitAnswerToChatClients({
-    answer: `Using Agent Skill: ${agentSkillContext.name}\nFollowing: ${agentSkillContext.skillPath}`,
+    answer: `Uso skill agente: ${agentSkillContext.name}\nProcedura: ${agentSkillContext.skillPath}`,
     isToolOutput: true,
     toolDisplayMode: 'activity_card',
     activityType: 'agent_skill',
@@ -267,7 +267,7 @@ export class ReActLLMDuty extends LLMDuty {
     }, { sessionId })
     this.reportProgressEvent({
       type: 'reasoning_summary',
-      summary: 'Understanding your request'
+      summary: 'Sto comprendendo la tua richiesta'
     })
 
     try {
