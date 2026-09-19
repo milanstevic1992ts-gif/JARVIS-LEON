@@ -1,0 +1,31 @@
+[Unit]
+Description=GE360 JARVIS Personal AI Assistant
+Documentation=https://github.com/milanstevic1992ts-gif/JARVIS-LEON
+After=network-online.target
+Wants=network-online.target
+After=ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=__JARVIS_USER__
+WorkingDirectory=__JARVIS_DIR__
+Environment=HOME=__JARVIS_HOME__
+Environment=NODE_ENV=production
+Environment=LEON_NODE_ENV=production
+ExecStart=__PNPM_BIN__ start
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+TimeoutStopSec=30
+KillSignal=SIGINT
+
+# Basic hardening that remains compatible with local models and GE360.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=__JARVIS_HOME__ __JARVIS_DIR__
+
+[Install]
+WantedBy=multi-user.target
