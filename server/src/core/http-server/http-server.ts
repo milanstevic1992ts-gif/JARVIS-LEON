@@ -19,6 +19,7 @@ import { corsMidd } from '@/core/http-server/plugins/cors'
 import { otherMidd } from '@/core/http-server/plugins/other'
 import { infoPlugin } from '@/core/http-server/api/info'
 import { brainStatusPlugin } from '@/core/http-server/api/brain-status'
+import { brainControlPlugin } from '@/core/http-server/api/brain-control'
 import { inferencePlugin } from '@/core/http-server/api/inference'
 import { runActionPlugin } from '@/core/http-server/api/run-action'
 import { fetchWidgetPlugin } from '@/core/http-server/api/fetch-widget'
@@ -198,6 +199,7 @@ export default class HTTPServer {
     this.fastify.register(sessionsPlugin, { apiVersion: API_VERSION })
     this.fastify.register(infoPlugin, { apiVersion: API_VERSION })
     this.fastify.register(brainStatusPlugin, { apiVersion: API_VERSION })
+    this.fastify.register(brainControlPlugin, { apiVersion: API_VERSION })
     this.fastify.register(commandPlugin, { apiVersion: API_VERSION })
     this.fastify.register(inferencePlugin, { apiVersion: API_VERSION })
     this.fastify.register(openPathPlugin, { apiVersion: API_VERSION })
