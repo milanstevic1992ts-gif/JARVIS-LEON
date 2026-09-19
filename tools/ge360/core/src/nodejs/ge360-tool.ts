@@ -1,6 +1,19 @@
 import { Tool } from '@sdk/base-tool'
 import { ToolkitConfig } from '@sdk/toolkit-config'
 
+import {
+  classifyJarvisAction,
+  getJarvisPolicyManager,
+  type JarvisActionDescriptor,
+  type JarvisRiskLevel
+} from '@/core/jarvis-policy/jarvis-policy-manager'
+import {
+  discoverGE360ResourceMap,
+  findGE360ResourceEndpoint,
+  type GE360OpenAPIDocument,
+  type GE360Resource
+} from './ge360-resource-resolver'
+
 const TOOLKIT_ID = 'ge360'
 const TOOL_ID = 'core'
 const DEFAULT_TIMEOUT_MS = 10_000
@@ -17,6 +30,8 @@ interface RequestOptions {
 interface GE360Settings {
   base_url?: string
   api_token?: string
+  writes_enabled?: boolean
+  yellow_auto_approve?: boolean
   allow_write_actions?: boolean
   timeout_ms?: number
 }
@@ -29,6 +44,20 @@ interface ProbeResult {
   openapi: boolean
   title?: string
   error?: string
+}
+
+interface OwnerActionRequired {
+  success: false
+  status: 'owner_action_required'
+  error: string
+  owner_action: {
+    message: string
+  }
+  policy: {
+    risk: JarvisRiskLevel
+    approval_id?: string
+    expires_at?: string
+  }
 }
 
 interface GE360Response {
@@ -146,10 +175,181 @@ export default class GE360Tool extends Tool {
     return this.getOpenAPIAgainstBaseURL(baseURL)
   }
 
+  async discoverResources(): Promise<Record<string, unknown>> {
+    const baseURL = await this.resolveBaseURL()
+
+    if (!baseURL) {
+      return {
+        success: false,
+        error:
+          'GE360 backend not found. Run discoverLocalService or configure base_url.'
+      }
+    }
+
+    const openAPIResponse = await this.fetchURL(baseURL, '/openapi.json', 'GET')
+    if (
+      !openAPIResponse.success ||
+      !openAPIResponse.data ||
+      typeof openAPIResponse.data !== 'object'
+    ) {
+      return {
+        success: false,
+        error: openAPIResponse.error || 'OpenAPI document not available.'
+      }
+    }
+
+    const document = openAPIResponse.data as GE360OpenAPIDocument
+
+    return {
+      success: true,
+      base_url: baseURL,
+      resources: discoverGE360ResourceMap(document)
+    }
+  }
+
+  async listResource(
+    resource: GE360Resource,
+    query?: Record<string, string | number | boolean>
+  ): Promise<Record<string, unknown>> {
+    const baseURL = await this.resolveBaseURL()
+
+    if (!baseURL) {
+      return {
+        success: false,
+        error:
+          'GE360 backend not found. Run discoverLocalService or configure base_url.'
+      }
+    }
+
+    const openAPIResponse = await this.fetchURL(baseURL, '/openapi.json', 'GET')
+    if (
+      !openAPIResponse.success ||
+      !openAPIResponse.data ||
+      typeof openAPIResponse.data !== 'object'
+    ) {
+      return {
+        success: false,
+        resource,
+        error: openAPIResponse.error || 'OpenAPI document not available.'
+      }
+    }
+
+    const endpoint = findGE360ResourceEndpoint(
+      openAPIResponse.data as GE360OpenAPIDocument,
+      resource,
+      'GET',
+      false
+    )
+
+    if (!endpoint) {
+      return {
+        success: false,
+        resource,
+        error:
+          'No GET collection endpoint found for GE360 resource "' +
+          resource +
+          '".'
+      }
+    }
+
+    const result = await this.requestAgainstBaseURL(baseURL, endpoint, {
+      method: 'GET',
+      ...(query ? { query } : {})
+    })
+
+    return {
+      ...result,
+      resource,
+      resolved_endpoint: endpoint
+    }
+  }
+
+  async getResource(
+    resource: GE360Resource,
+    id: string
+  ): Promise<Record<string, unknown>> {
+    const baseURL = await this.resolveBaseURL()
+
+    if (!baseURL) {
+      return {
+        success: false,
+        error:
+          'GE360 backend not found. Run discoverLocalService or configure base_url.'
+      }
+    }
+
+    const normalizedId = String(id || '').trim()
+    if (!normalizedId) {
+      return {
+        success: false,
+        resource,
+        error: 'Resource id is required.'
+      }
+    }
+
+    const openAPIResponse = await this.fetchURL(baseURL, '/openapi.json', 'GET')
+    if (
+      !openAPIResponse.success ||
+      !openAPIResponse.data ||
+      typeof openAPIResponse.data !== 'object'
+    ) {
+      return {
+        success: false,
+        resource,
+        error: openAPIResponse.error || 'OpenAPI document not available.'
+      }
+    }
+
+    const template = findGE360ResourceEndpoint(
+      openAPIResponse.data as GE360OpenAPIDocument,
+      resource,
+      'GET',
+      true
+    )
+
+    if (!template) {
+      return {
+        success: false,
+        resource,
+        error:
+          'No GET detail endpoint found for GE360 resource "' +
+          resource +
+          '".'
+      }
+    }
+
+    const placeholders = [...template.matchAll(/\{[^}]+\}/g)]
+    if (placeholders.length !== 1) {
+      return {
+        success: false,
+        resource,
+        error:
+          'Automatic detail lookup requires exactly one path parameter in "' +
+          template +
+          '".'
+      }
+    }
+
+    const endpoint = template.replace(
+      placeholders[0]![0],
+      encodeURIComponent(normalizedId)
+    )
+    const result = await this.requestAgainstBaseURL(baseURL, endpoint, {
+      method: 'GET'
+    })
+
+    return {
+      ...result,
+      resource,
+      resolved_endpoint: endpoint,
+      endpoint_template: template
+    }
+  }
+
   async request(
     path: string,
     options: RequestOptions = {}
-  ): Promise<GE360Response> {
+  ): Promise<GE360Response | OwnerActionRequired> {
     const baseURL = await this.resolveBaseURL()
 
     if (!baseURL) {
