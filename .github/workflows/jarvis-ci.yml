@@ -39,8 +39,27 @@ jobs:
             server/src/core/llm-manager/llm-provider.ts \
             server/src/core/llm-manager/llm-providers/ollama-llm-provider.ts \
             scripts/setup/setup-config.js \
-            scripts/setup/setup.js
+            scripts/setup/setup.js \
+            server/src/core/context-manager/context-files/leon-context-file.ts \
+            server/src/core/context-manager/context-files/leon-runtime-context-file.ts \
+            server/src/built-in-command/commands/voice-command/voice-command.ts \
+            tools/ge360/core/src/nodejs/ge360-tool.ts \
+            tools/ge360/core/src/nodejs/index.ts
 
-      - name: Validate JARVIS YAML configuration
+      - name: Validate JARVIS configuration and GE360 manifests
         run: |
-          node --input-type=module -e "import fs from 'node:fs'; import YAML from 'yaml'; const c=YAML.parse(fs.readFileSync('config.sample.yml','utf8')); if(c.language!=='it-IT') throw new Error('language'); if(c.llm.default!=='ollama/qwen3.5:9b') throw new Error('default model'); if(c.llm.providers.ollama.base_url!=='http://127.0.0.1:11434/v1') throw new Error('ollama URL'); console.log('JARVIS config OK')"
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs'
+          import YAML from 'yaml'
+          const c = YAML.parse(fs.readFileSync('config.sample.yml', 'utf8'))
+          if (c.language !== 'it-IT') throw new Error('language')
+          if (c.llm.default !== 'ollama/qwen3.5:9b') throw new Error('default model')
+          if (c.llm.providers.ollama.base_url !== 'http://127.0.0.1:11434/v1') throw new Error('ollama URL')
+          const toolkit = JSON.parse(fs.readFileSync('tools/ge360/toolkit.json', 'utf8'))
+          const tool = JSON.parse(fs.readFileSync('tools/ge360/core/tool.json', 'utf8'))
+          const settings = JSON.parse(fs.readFileSync('tools/ge360/core/settings.sample.json', 'utf8'))
+          if (toolkit.name !== 'GE360' || !toolkit.tools.includes('core')) throw new Error('GE360 toolkit')
+          if (tool.toolkit_id !== 'ge360' || tool.tool_id !== 'core') throw new Error('GE360 tool')
+          if (settings.allow_write_actions !== false) throw new Error('write gate must default false')
+          console.log('JARVIS + GE360 manifests OK')
+          NODE
