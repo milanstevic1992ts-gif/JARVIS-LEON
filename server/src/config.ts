@@ -52,9 +52,9 @@ const DEFAULT_CONFIG: LeonConfig = {
     mode: 'auto'
   },
   runtime: {
-    agent_max_iterations: AGENT_MAX_ITERATIONS,
-    pulse_enabled: true,
-    private_diary_enabled: true,
+    agent_max_iterations: 64,
+    pulse_enabled: false,
+    private_diary_enabled: false,
     progressive_toolkit_loading: true
   },
   context: {
@@ -83,15 +83,15 @@ const DEFAULT_CONFIG: LeonConfig = {
   },
   time_zone: null,
   after_speech_enabled: false,
-  telemetry_enabled: true,
+  telemetry_enabled: false,
   python_tcp_server: {
     host: '127.0.0.1',
     port: 5_367
   },
   llm: {
-    default: 'ollama/qwen3.5:9b',
+    default: 'ollama/qwen3.5:4b',
     workflow: null,
-    agent: 'ollama/qwen3.5:9b',
+    agent: 'ollama/qwen3.5:4b',
     model_settings: {},
     providers: {
       llamacpp: {
