@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   import-leon:
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore: bootstrap Leon upstream') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'bootstrap Leon upstream') }}
     runs-on: ubuntu-latest
 
     steps:
