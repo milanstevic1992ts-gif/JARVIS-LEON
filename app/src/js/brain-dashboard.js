@@ -114,6 +114,7 @@ export default class BrainDashboard {
     this.panel = null
     this.content = null
     this.statusLabel = null
+    this.statusDot = null
     this.lastUpdated = null
     this.toggleButton = document.querySelector('#brain-toggle')
   }
@@ -187,7 +188,8 @@ export default class BrainDashboard {
 
     const heroState = createElement('div', 'brain-hero__state')
     const stateLine = createElement('div', 'brain-hero__state-line')
-    stateLine.append(createStatusDot(true))
+    this.statusDot = createStatusDot(true)
+    stateLine.append(this.statusDot)
     this.statusLabel = createElement(
       'span',
       'brain-hero__status',
@@ -273,8 +275,13 @@ export default class BrainDashboard {
     if (this.lastError) {
       this.statusLabel.textContent = 'JARVIS ERROR'
       this.panel.dataset.runtimeState = 'error'
+      this.statusDot?.classList.remove('brain-status-dot--online')
+      this.statusDot?.classList.add('brain-status-dot--offline')
       return
     }
+
+    this.statusDot?.classList.remove('brain-status-dot--offline')
+    this.statusDot?.classList.add('brain-status-dot--online')
 
     if (this.isThinking) {
       this.statusLabel.textContent = 'JARVIS STA LAVORANDO'
