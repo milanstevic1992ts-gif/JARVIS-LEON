@@ -53,6 +53,8 @@ jobs:
             scripts/setup/setup.js \
             scripts/jarvis/apply-low-resource-profile.js \
             app/src/js/brain-dashboard.js \
+            app/src/js/jarvis-quick-chat.js \
+            app/src/js/client.js \
             app/src/js/main.js \
             app/src/js/profile-auth.js \
             server/src/core/context-manager/context-files/leon-context-file.ts \
@@ -110,6 +112,8 @@ jobs:
           grep -R -Fq 'BOOST' app/dist
           grep -R -Fq 'Benchmark' app/dist
           grep -R -Fq 'Restart JARVIS' app/dist
+          grep -R -Fq 'JARVIS Chat' app/dist
+          grep -R -Fq 'Chat con JARVIS' app/dist
           rm -rf "$TMP_HOME"
 
       - name: Validate Brain control safety wiring
