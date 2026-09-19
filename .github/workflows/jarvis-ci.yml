@@ -112,6 +112,9 @@ jobs:
           grep -Fq 'pnpm run jarvis:prepare-ai' deploy/debian/install-jarvis-linux.sh
           grep -Fq 'systemctl restart ge360-jarvis.service' deploy/debian/install-jarvis-linux.sh
 
+      - name: Build production server TypeScript
+        run: pnpm run build:server
+
       - name: Build production app with Brain Dashboard
         run: |
           TMP_HOME="$(mktemp -d)"
